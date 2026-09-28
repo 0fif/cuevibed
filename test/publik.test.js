@@ -246,6 +246,11 @@ test('402 insufficient_credit renders the message plus exactly one link: top_up_
   assert.match(claimed.message, /^publik API balance is used up \(\$0\.00 left\)\. Add a plan or a pack at the link below, or use your own key in Settings\.$/);
   assert.equal(claimed.fromResponse, false);
   assert.deepEqual(claimed.action, { kind: 'link', label: 'Add a plan or pack', url: 'https://publikhq.com/dashboard/api/add' });
+  // Anonymous with no message (policy 0059): the install holds $0.00; linking pays $0.05 once. No promise of a starter already on the computer.
+  const anonLocal = publik.describeGatewayError({ status: 402, body: { type: 'insufficient_credit', available_micros: 0, claim_state: 'anonymous', top_up_url: 'https://publikhq.com/claim/HK7F-2QWD' } });
+  assert.equal(anonLocal.message, 'publik API: your balance is too low for this request. Link this computer to your publik account at the link below for $0.05 of free use, pick a plan there, or use your own key in Settings.');
+  assert.equal(anonLocal.fromResponse, false);
+  assert.deepEqual(anonLocal.action, { kind: 'link', label: 'Link this computer & pick a plan', url: 'https://publikhq.com/claim/HK7F-2QWD' });
 
   // A top_up_url on a foreign origin is dropped: the message still renders, with no link.
   const hostile = publik.describeGatewayError({ status: 402, body: { type: 'insufficient_credit', top_up_url: 'https://evil.example/x' } });

@@ -40,8 +40,8 @@ const COPY = {
   dataPath: 'Your prompts and screenshots go through publik\'s servers to a shared model account. publik never trains on them and does not store them. You can switch to your own key at any time.',
   disclosure: {
     title: 'cue uses publik API',
-    intro: 'cue needs an AI model to work. By default it runs on publik API, so you can start right away without an account or a key.',
-    cost: 'Every request is priced per use at 50% of the model\'s published list price, from your publik balance. Link your publik account to get a small free starter balance once. Most people spend under $2 a month. You can see every charge in the app and at publikhq.com.',
+    intro: 'cue needs an AI model to work. By default it runs on publik API, so you need no key of your own.',
+    cost: 'Every request is priced per use at 50% of the model\'s published list price, from your publik balance. A new computer starts at $0.00. Linking this computer to your publik account gives $0.05 of free use, once. Most people spend under $2 a month. You can see every charge in the app and at publikhq.com.',
     dataPath: 'Your prompts and screenshots go through publik\'s servers to a shared model account. publik never trains on them and does not store them. You can switch to your own key at any time in Settings.',
     accept: 'Continue with publik API',
     decline: 'Use my own key instead',
@@ -316,7 +316,7 @@ function describeGatewayError({ status, body, model, retryAfter } = {}) {
     const claimed = err.claim_state === 'claimed';
     const fallback = claimed
       ? `${PROVIDER_LABEL} balance is used up (${formatMicros(err.available_micros || 0)} left). Add a plan or a pack at the link below, ${BYO}`
-      : `${PROVIDER_LABEL}: this computer has no free usage yet. Link it to your publik account for a small free starter balance, then pick a plan at the link below, ${BYO}`;
+      : `${PROVIDER_LABEL}: your balance is too low for this request. Link this computer to your publik account at the link below for $0.05 of free use, pick a plan there, ${BYO}`;
     const message = typeof err.message === 'string' && err.message.trim() ? err.message.trim() : fallback;
     return { message, action: link(claimed ? 'Add a plan or pack' : 'Link this computer & pick a plan', topUp), fromResponse: message !== fallback };
   }
@@ -420,7 +420,7 @@ function starterLine(p) {
  * The first-run card, shown once right after POST /installs succeeds (§12.1):
  * (a) balance line, (b) the justification, (c) the primary button that opens
  * claim_url — only a publikhq.com link ever becomes a button — and "Later",
- * which keeps the free starter and changes nothing else.
+ * which keeps the key and the balance and changes nothing else.
  */
 function ctaView(p) {
   if (!p || !p.connected) return null;

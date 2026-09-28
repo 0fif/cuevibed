@@ -33,7 +33,7 @@ const DEFAULTS = {
     claimUrl: '',             // where "Link this computer" goes until the install is claimed
     claimCode: '',
     claimState: '',           // 'anonymous' | 'claimed' — last seen from the gateway
-    starterMicros: 0,         // from the mint response; 0 under the account-starter-at-link policy — kept in case a future response ever sends a nonzero value
+    starterMicros: 0,         // from the mint response; 0 for every mint since policy 0059 — only an install minted before it still carries its old starter
     balanceMicros: null,      // last known available balance (headers or GET /wallet)
     balanceAt: 0,
     wallet: null,             // last GET /wallet, normalised (src/publik.js normalizeWallet)

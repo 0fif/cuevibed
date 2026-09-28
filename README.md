@@ -120,10 +120,10 @@ published list price. It also states the average cost: most people spend
 under $2 a month. It also states where your data goes: your prompts and
 screenshots go through publik's servers to a shared model account, and
 publik never trains on them. Nothing is set up until you press **Continue
-with publik API**. A new computer starts with a $0 publik balance. Settings
-→ Keys shows the balance line and a **Link this computer & pick a plan**
-button. Link your publik account once to get a small free starter balance.
-Then add a plan or a pack to keep going. **Use my own key instead** switches
+with publik API**. A new computer starts at $0.00. Settings → Keys shows
+the balance line and a **Link this computer & pick a plan** button. Linking
+this computer to your publik account gives $0.05 of free use, once. Then
+add a plan or a pack to keep going. **Use my own key instead** switches
 to any of the providers below at any time. cue never replaces a key you have
 already entered.
 

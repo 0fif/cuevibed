@@ -138,7 +138,7 @@ test('"Later" marks the card seen and leaves the key, the provider and the balan
 
   const after = store.data;
   assert.equal(after.apiKeys.publik, KEY, 'the key stays');
-  assert.equal(after.provider, 'publik', 'still on publik API — the free starter is kept');
+  assert.equal(after.provider, 'publik', 'still on publik API — the balance is kept');
   assert.equal(after.publik.cardShown, true);
   assert.equal(after.publik.starterMicros, 0);
   assert.equal(after.publik.balanceMicros, 0);
