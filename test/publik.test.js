@@ -93,8 +93,11 @@ test('provision sends the app token in the header and the body, and returns the 
       install_id: 'id', key: KEY, key_id: 'k'.repeat(12), base_url: 'https://publikhq.com/api/v1/',
       models: { fast: 'publik-fast', balanced: 'publik-balanced', smart: 'publik-smart' },
       claim_code: 'HK7F-2QWD', claim_url: 'https://publikhq.com/claim/HK7F-2QWD',
-      starter_micros: 250000, balance_micros: 250000, starting_credit_micros: 250000,
-      wallet: { claim_state: 'anonymous', balance_micros: 250000, starter: { remaining_micros: 250000 }, week: { used_micros: 0, budget_micros: null } }
+      // This install was already bound to a signed-in account at mint time, so
+      // it carries the once-per-account $0.05 starter (policy 0059); a plain
+      // anonymous mint always returns starter_micros: 0.
+      starter_micros: 50000, balance_micros: 50000, starting_credit_micros: 50000,
+      wallet: { claim_state: 'claimed', balance_micros: 50000, starter: { remaining_micros: 50000 }, week: { used_micros: 0, budget_micros: null } }
     });
   };
   const r = await publik.provision({ build: buildWith(), installId: 'u-1', appVersion: '0.2.3', platform: 'darwin', osVersion: '24.6.0', arch: 'arm64', deviceName: 'Test Mac', fetchImpl });
@@ -120,9 +123,9 @@ test('provision sends the app token in the header and the body, and returns the 
   assert.deepEqual(r.models, { fast: 'publik-fast', smart: 'publik-balanced' });
   assert.equal(r.claimUrl, 'https://publikhq.com/claim/HK7F-2QWD');
   assert.equal(r.claimCode, 'HK7F-2QWD');
-  assert.equal(r.starterMicros, 250000);
-  assert.equal(r.balanceMicros, 250000);
-  assert.equal(r.wallet.claimState, 'anonymous');
+  assert.equal(r.starterMicros, 50000);
+  assert.equal(r.balanceMicros, 50000);
+  assert.equal(r.wallet.claimState, 'claimed');
 });
 
 test('provision: a 200 replay comes back as replay:true with no key', async () => {
@@ -292,7 +295,7 @@ test('400 unknown_model, 413, 503 and network failures; anything else falls thro
 
 test('balanceLine renders the anonymous, claimed-with-plan and claimed-no-plan forms', () => {
   assert.equal(publik.balanceLine({ connected: false }), '');
-  assert.equal(publik.balanceLine({ connected: true, claimState: 'anonymous', balanceMicros: 180000, starterMicros: 250000, wallet: { claimState: 'anonymous' } }), 'Ready · $0.18 left of $0.25 free starter usage');
+  assert.equal(publik.balanceLine({ connected: true, claimState: 'anonymous', balanceMicros: 30000, starterMicros: 50000, wallet: { claimState: 'anonymous' } }), 'Ready · $0.03 left of $0.05 free starter usage');
   assert.equal(publik.balanceLine({ connected: true, balanceMicros: 180000, starterMicros: 0, wallet: { claimState: 'anonymous' } }), 'Ready · $0.18 left');
   const now = Date.parse('2026-09-22T12:00:00Z');
   const plan = publik.balanceLine({ connected: true, balanceMicros: 3120000, wallet: { claimState: 'claimed', weekUsedMicros: 1200000, weekBudgetMicros: 4620000, weekResetsAt: '2026-09-25T17:04:11Z' } }, now);
