@@ -50,6 +50,41 @@ const { locateWhisperRuntime } = require('./src/whisper-runtime');
 const { LocalWhisperTranscriber } = require('./src/local-whisper-transcriber');
 
 let win = null;
+let settingsWin = null;
+let allowSettingsClose = false;
+
+function openSettingsWindow() {
+  if (settingsWin && !settingsWin.isDestroyed()) {
+    settingsWin.show(); settingsWin.focus(); return;
+  }
+  const { workArea } = screen.getDisplayMatching(win.getBounds());
+  settingsWin = new BrowserWindow({
+    title: 'CueVibed Settings', width: Math.min(900, workArea.width), height: Math.min(720, workArea.height),
+    minWidth: 600, minHeight: 420, show: false, backgroundColor: '#202124',
+    alwaysOnTop: true, fullscreenable: false,
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: false }
+  });
+  allowSettingsClose = false;
+  // The meeting overlay uses screen-saver + 1. Preferences must sit above
+  // that level; the default floating level stays underneath it on macOS.
+  settingsWin.setAlwaysOnTop(true, 'screen-saver', 2);
+  if (!process.env.CUE_NO_PROTECT && WIN_IS_LOCAL_CONSOLE_SESSION) settingsWin.setContentProtection(true);
+  settingsWin.on('close', event => {
+    if (allowSettingsClose) return;
+    event.preventDefault();
+    settingsWin.webContents.send('settings:close-request');
+  });
+  settingsWin.on('closed', () => { settingsWin = null; });
+  settingsWin.once('ready-to-show', () => { settingsWin?.show(); });
+  settingsWin.loadFile(path.join(__dirname, 'renderer/index.html'), { query: { view: 'settings' } });
+}
+ipcMain.handle('settings:open-window', openSettingsWindow);
+ipcMain.on('settings:close-window', event => {
+  if (settingsWin && event.sender === settingsWin.webContents) {
+    allowSettingsClose = true;
+    settingsWin.close();
+  }
+});
 // Which global shortcuts cue actually holds. `globalShortcut.register` returns
 // false when another application already owns the combination, and nothing used
 // to look at that — so the only symptom was a key that did nothing. Iris reads
@@ -169,7 +204,13 @@ function pushTranscript(turn) {
   if (meetingMemory) meetingMemory.onTurn(turn);
 }
 
-function send(channel, data) { if (win && !win.isDestroyed()) win.webContents.send(channel, data); }
+function send(channel, data) {
+  if (win && !win.isDestroyed()) win.webContents.send(channel, data);
+  // The preferences renderer never receives capture or transcript events.
+  if (settingsWin && !settingsWin.isDestroyed() && ['whisper:download-progress', 'whisper:models-changed', 'publik:state'].includes(channel)) {
+    settingsWin.webContents.send(channel, data);
+  }
+}
 
 function getWhisperRuntime() {
   return locateWhisperRuntime({
@@ -900,6 +941,9 @@ ipcMain.handle('settings:get', () => store.redactForRenderer(store.getSettings()
 ipcMain.handle('settings:set', (_e, patch) => {
   sttDisabled = false;
   const next = store.setSettings(store.stripRendererPatch(patch));
+  if (win && !win.isDestroyed() && _e.sender !== win.webContents) {
+    win.webContents.send('settings:updated', store.redactForRenderer(next));
+  }
   if (!next.autoAnswer) autoAnswer.reset();
   // Restart slide polling with the new interval when capturing (keeps slides).
   if (state.capturing) startSlideLoop();
@@ -1467,6 +1511,7 @@ app.whenReady().then(async () => {
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
 
+app.on('before-quit', () => { allowSettingsClose = true; });
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
   // Quitting mid-meeting is a pause, not an end: the meeting stays open on disk

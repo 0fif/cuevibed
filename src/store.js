@@ -74,6 +74,7 @@ const DEFAULTS = {
   aiRules: '',
   // Background opacity; text and controls stay readable.
   opacity: 1,
+  settingsTheme: 'system',
   answerTextSize: 'medium',
   transcriptTextSize: 'medium',
   // Slides: opt-in auto slide tracking (memory-only, forwarded, never written to disk).
@@ -235,6 +236,7 @@ module.exports = {
     const nextSettings = deepMerge(data, patch || {});
     nextSettings.baseUrl = normalizeBaseUrl(nextSettings.baseUrl);
     nextSettings.opacity = clampOpacity(nextSettings.opacity);
+    if (!['system', 'light', 'dark'].includes(nextSettings.settingsTheme)) nextSettings.settingsTheme = 'system';
     for (const key of ['answerTextSize', 'transcriptTextSize']) {
       if (!['small', 'medium', 'large'].includes(nextSettings[key])) nextSettings[key] = 'medium';
     }

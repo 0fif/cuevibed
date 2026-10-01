@@ -5,6 +5,8 @@
   const $ = (s) => document.querySelector(s);
   const isWindows = cue.platform === 'win32';
   const isMac = cue.platform === 'darwin';
+  const isSettingsWindow = new URLSearchParams(location.search).get('view') === 'settings';
+  if (isSettingsWindow) document.documentElement.classList.add('settings-window');
 
   // Exiting must work before settings or provider setup has completed.
   const quitButton = $('#quit-btn');
@@ -22,6 +24,10 @@
   document.querySelector('.act[data-mode="recap"] .ic').innerHTML = icon('refresh-cw', { size: 16 });
   $('#smart-toggle .ic').innerHTML = icon('zap', { size: 14 });
   $('#more-btn').innerHTML = icon('more-horizontal', { size: 18 });
+  for (const [tab, name] of Object.entries({ keys: 'plug', transcription: 'volume-2', style: 'wand-sparkles', appearance: 'palette' })) {
+    const button = document.querySelector(`[data-tab="${tab}"]`);
+    button.insertAdjacentHTML('afterbegin', '<span class="s-nav-icon" aria-hidden="true">' + icon(name, { size: 16 }) + '</span>');
+  }
   $('#send-btn').innerHTML = icon('play', { size: 15 });
   const clearIC = document.querySelector('#clear-transcript-btn .ic');
   if (clearIC) clearIC.innerHTML = icon('trash-2', { size: 15 });
@@ -596,6 +602,24 @@
     return Math.min(1, Math.max(OPACITY_MIN, Math.round(n * 100) / 100));
   }
   function opacityToPercent(value) { return Math.round(clampOpacity(value) * 100); }
+  const systemAppearance = window.matchMedia('(prefers-color-scheme: dark)');
+  function applySettingsTheme() {
+    const choice = ['system', 'light', 'dark'].includes(settings?.settingsTheme) ? settings.settingsTheme : 'system';
+    $('#settings').dataset.theme = choice === 'system' ? (systemAppearance.matches ? 'dark' : 'light') : choice;
+    document.querySelectorAll('[data-settings-theme]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.settingsTheme === choice));
+    });
+  }
+  systemAppearance.addEventListener('change', applySettingsTheme);
+  document.querySelectorAll('[data-settings-theme]').forEach(button => {
+    button.addEventListener('click', async () => {
+      if (!settings) return;
+      settings.settingsTheme = button.dataset.settingsTheme;
+      applySettingsTheme();
+      try { await cue.settingsSet({ settingsTheme: settings.settingsTheme }); }
+      catch (error) { showStatus('Could not save appearance: ' + error.message); }
+    });
+  });
   function applyTextSizes() {
     const sizes = [
       ['answerTextSize', 'answer-text-size', '--answer-size', { small: 17, medium: 20, large: 24 }],
@@ -703,6 +727,7 @@
   // transcriber can't make sense of — and the orphaned one keeps the mic hot.
   let micGen = 0;
   async function startMic() {
+    if (isSettingsWindow) return;
     if (micStream) return;
     const gen = ++micGen;
     try {
@@ -801,6 +826,7 @@
   // ---- capture: system/meeting audio (getDisplayMedia loopback, in cue's process) ----
   let sysStream = null, sysCtx = null, sysWorklet = null, sysStarting = false;
   async function startSystemAudio() {
+    if (isSettingsWindow) return;
     // Called both from the stop-btn click (fresh user gesture for getDisplayMedia) and from the
     // capture:state handler. getDisplayMedia is async, so `if (sysStream) return` alone loses the
     // race and can open a second loopback stream that is then orphaned.
@@ -1354,6 +1380,7 @@
   // ---- settings ----------------------------------------------------------
   const scrim = $('#settings-scrim');
   function openSettings() {
+    if (!isSettingsWindow) { void cue.settingsOpenWindow(); return; }
     fillSettings();
     scrim.classList.remove('hidden');
     refreshWhisperModels();
@@ -1367,7 +1394,10 @@
     if (closingSettings) return;
     closingSettings = true;
     try {
-      if (await saveSettings()) scrim.classList.add('hidden');
+      if (await saveSettings()) {
+        if (isSettingsWindow) cue.settingsCloseWindow();
+        else scrim.classList.add('hidden');
+      }
     } finally {
       closingSettings = false;
     }
@@ -1375,6 +1405,12 @@
   $('#more-btn').addEventListener('click', openSettings);
   $('#tb-settings-btn').addEventListener('click', openSettings);
   $('#s-close').addEventListener('click', () => { void closeSettings(); });
+  cue.on('settings:close-request', () => { void closeSettings(); });
+  cue.on('settings:updated', next => {
+    settings = next;
+    applyOpacity(settings.opacity, false);
+    applyTextSizes(); applySettingsTheme(); showAutoAnswer(); updateSmartTooltip();
+  });
   scrim.addEventListener('click', (e) => { if (e.target === scrim) void closeSettings(); });
 
   // Tab switching
@@ -1382,9 +1418,13 @@
     tab.addEventListener('click', async () => {
       if (tab.classList.contains('on')) return;
       if (!(await saveSettings())) return;
-      document.querySelectorAll('.s-tab').forEach(t => t.classList.remove('on'));
+      document.querySelectorAll('.s-tab').forEach(t => {
+        t.classList.remove('on');
+        t.removeAttribute('aria-current');
+      });
       document.querySelectorAll('.s-tab-pane').forEach(p => p.classList.add('hidden'));
       tab.classList.add('on');
+      tab.setAttribute('aria-current', 'page');
       const pane = document.querySelector(`.s-tab-pane[data-pane="${tab.dataset.tab}"]`);
       if (pane) pane.classList.remove('hidden');
     });
@@ -1543,6 +1583,7 @@
     // Appearance tab
     applyOpacity(settings.opacity, false);
     applyTextSizes();
+    applySettingsTheme();
   }
 
   // Whoever cue has been told it may answer questions for. Empty is the normal
@@ -1813,7 +1854,10 @@
     const opacitySlider = $('#s-opacity-slider');
     if (opacitySlider) settings.opacity = clampOpacity(Number(opacitySlider.value) / 100);
     try {
-      settings = await cue.settingsSet(settings);
+      // Save only fields owned by Settings. The live overlay can change its
+      // session toggles and window position while this window is open.
+      const fields = ['provider', 'apiKeys', 'baseUrl', 'azureEndpoint', 'minimaxRegion', 'models', 'meetingAudio', 'sttProvider', 'localWhisper', 'slides', 'aiRules', 'opacity', 'answerTextSize', 'transcriptTextSize', 'settingsTheme'];
+      settings = await cue.settingsSet(Object.fromEntries(fields.map(key => [key, settings[key]])));
       $('#s-status').textContent = statusText();
       updateSmartTooltip();
       return true;
@@ -1889,7 +1933,7 @@
       showAutoAnswer();
     } catch (error) { cue.log('Could not save auto-answer: ' + error.message); }
   });
-  function setIgnore(v) { if (v !== ignoring) { ignoring = v; cue.setIgnoreMouse(v); } }
+  function setIgnore(v) { if (!isSettingsWindow && v !== ignoring) { ignoring = v; cue.setIgnoreMouse(v); } }
   document.addEventListener('mousemove', (e) => {
     // The window trails the cursor while dragging; going click-through then would drop the release.
     if (draggingWindow || resizingWindow) return;
@@ -2115,6 +2159,10 @@
     showAutoAnswer();
     const platformInfo = await cue.platformInfo();
     publikState = await cue.publikState();
+    if (isSettingsWindow) {
+      openSettings();
+      return;
+    }
     // A build with no app token never shows the option, and keeps the BYO
     // onboarding card. With one, the "Connect an AI provider" card becomes the
     // publik disclosure; the BYO branch stays one tap away on that card.
@@ -2159,6 +2207,7 @@
 
     applyOpacity(settings.opacity, false);
     applyTextSizes();
+    applySettingsTheme();
 
     const st = await cue.captureState();
     $('#live-dot').classList.toggle('off', !st.active);

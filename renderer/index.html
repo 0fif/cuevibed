@@ -112,16 +112,18 @@
         <button id="s-close" class="s-close">Done</button>
       </div>
 
-      <!-- Tab bar -->
-      <div class="s-tabs">
-        <button class="s-tab on" data-tab="keys">🔑 API Keys</button>
-        <button class="s-tab" data-tab="transcription">🔉 Audio</button>
-        <button class="s-tab" data-tab="style">✨ Style</button>
-        <button class="s-tab" data-tab="appearance">🌗 Appearance</button>
-      </div>
+      <!-- Settings navigation -->
+      <nav class="s-tabs" aria-label="Settings sections">
+        <button class="s-tab on" data-tab="keys" aria-current="page">Connection</button>
+        <button class="s-tab" data-tab="transcription">Audio</button>
+        <button class="s-tab" data-tab="style">AI behavior</button>
+        <button class="s-tab" data-tab="appearance">Appearance</button>
+      </nav>
 
       <!-- Tab: Keys -->
       <div class="s-body s-tab-pane" data-pane="keys">
+        <header class="s-page-head"><h2>Connection</h2><p>Choose the provider and models that power your answers.</p></header>
+        <section class="s-group">
         <label class="s-label">Provider</label>
         <div class="s-seg" id="provider-seg">
           <button data-provider="publik" id="provider-publik" class="hidden">publik API <span class="s-default-badge">default</span></button>
@@ -137,6 +139,8 @@
           <button data-provider="azure">Azure AI</button>
         </div>
 
+        </section>
+        <section class="s-group">
         <label class="s-label">API keys &amp; URLs <span class="s-hint">stored locally · never sent to any server</span></label>
         <div class="s-field" data-key-for="cerebras"><span>Cerebras</span><input id="key-cerebras" type="password" placeholder="csk-..." autocomplete="off" /></div>
         <div class="s-field" data-key-for="openai"><span>OpenAI</span><input id="key-openai" type="password" placeholder="sk-..." autocomplete="off" /></div>
@@ -158,7 +162,7 @@
         <div id="custom-endpoint-settings" class="hidden">
           <label class="s-label" for="base-url">Custom endpoint <span class="s-hint">OpenAI-compatible chat API</span></label>
           <div class="s-field"><span>Base URL</span><input id="base-url" type="url" placeholder="http://127.0.0.1:18789/v1" autocomplete="off" spellcheck="false" /></div>
-          <div class="s-help">Your Custom key and LLM requests are sent to this URL. To also use it for speech-to-text, pick Custom on the Audio tab — otherwise transcription uses OpenAI or Groq.</div>
+          <div class="s-help">Your Custom key and LLM requests are sent to this URL. To also use it for speech-to-text, pick Custom in Audio — otherwise transcription uses OpenAI or Groq.</div>
         </div>
 
         <!-- publik API: the packaged-build default. Text and buttons are filled by
@@ -191,18 +195,25 @@
           <div class="s-field"><span>Endpoint</span><input id="azure-endpoint" type="text" placeholder="https://host.cognitiveservices.azure.com" autocomplete="off" /></div>
         </div>
 
+        </section>
+        <section class="s-group">
         <label class="s-label">Models <span class="s-hint">fast = Smart off · smart = Smart on</span></label>
         <div class="s-field"><span>Fast</span><input id="model-fast" type="text" autocomplete="off" /></div>
         <div class="s-field"><span>Smart</span><input id="model-smart" type="text" autocomplete="off" /></div>
 
+        </section>
+        <section class="s-group">
         <label class="s-label">Assistant access <span class="s-hint">programs allowed to see what cue is doing</span></label>
         <div class="s-callers" id="applink-callers"></div>
 
         <div class="s-status" id="s-status"></div>
+        </section>
       </div>
 
       <!-- Tab: Transcription -->
       <div class="s-body s-tab-pane hidden" data-pane="transcription">
+        <header class="s-page-head"><h2>Audio</h2><p>Manage transcription and meeting capture.</p></header>
+        <section class="s-group">
         <label class="s-label">Speech-to-text provider</label>
         <div class="s-seg s-seg-wrap" id="stt-provider-seg">
           <button data-stt-provider="auto">Auto</button>
@@ -210,8 +221,10 @@
           <button data-stt-provider="openai">OpenAI</button>
           <button data-stt-provider="custom">Custom</button>
         </div>
-        <div class="s-note">Local mode keeps microphone and meeting audio on this computer. It never silently falls back to a cloud transcription provider. Custom sends audio to the Base URL and Custom key set on the API Keys tab (requires both).</div>
+        <div class="s-note">Local mode keeps microphone and meeting audio on this computer. It never silently falls back to a cloud transcription provider. Custom sends audio to the Base URL and Custom key set in Connection (requires both).</div>
 
+        </section>
+        <section class="s-group">
         <label class="s-label">Meeting audio <span class="s-hint">transcribe the other side of a call</span></label>
         <div class="s-seg" id="meeting-audio-seg">
           <button data-meeting-audio="off">Off</button>
@@ -219,7 +232,8 @@
         </div>
         <div class="s-note" id="meeting-audio-note"></div>
 
-        <div class="whisper-card">
+        </section>
+        <section class="s-group whisper-card">
           <div class="whisper-runtime-row">
             <span class="s-label">whisper.cpp runtime</span>
             <span id="whisper-runtime-status" class="whisper-badge">Checking…</span>
@@ -253,18 +267,21 @@
             <input id="whisper-threads" type="number" min="0" max="64" step="1" value="0" />
           </div>
           <div class="s-note">Use 0 for whisper.cpp's default. English-only models always use English regardless of the language setting.</div>
-        </div>
+        </section>
 
         <div class="s-status" id="whisper-status"></div>
-
+        <section class="s-group">
         <label class="s-label">Meeting slides <span class="s-hint">opt-in · auto-captions while listening · memory-only</span></label>
         <div class="s-field"><span>Track slides</span><input id="slides-enabled" type="checkbox" style="width:auto;" /></div>
         <div class="s-field"><span>Check every (ms)</span><input id="slides-interval" type="number" min="1500" max="15000" step="500" value="3000" /></div>
         <div class="s-note">Captures a tiny hash every few seconds, captions only on stable change with your chat model. No images stored; clear with transcript.</div>
+        </section>
       </div>
 
       <!-- Tab: Style -->
       <div class="s-body s-tab-pane hidden" data-pane="style">
+        <header class="s-page-head"><h2>AI behavior</h2><p>Set the tone and format of your answers.</p></header>
+        <section class="s-group">
         <label class="s-label">AI rules <span class="s-hint">how the AI should write its responses</span></label>
         <textarea id="ai-rules" rows="10" spellcheck="false" maxlength="2000" placeholder="e.g.
 - Never use em-dashes.
@@ -277,23 +294,42 @@
         <div class="s-hint-block">
           These rules tell cue <strong>how</strong> to write, not <strong>what</strong> to say. Use one imperative sentence per line (e.g. <em>Never use em-dashes.</em>). They apply to every mode except coding-problem solves (LeetCode), which stays strict. Stored locally; never sent anywhere except the AI provider when cue answers a question.
         </div>
+        </section>
       </div>
 
       <!-- Tab: Appearance -->
       <div class="s-body s-tab-pane hidden" data-pane="appearance">
+        <header class="s-page-head"><h2>Appearance</h2><p>Make the overlay comfortable to read.</p></header>
+        <section class="s-group">
+          <div class="s-label" id="settings-theme-label">Settings appearance</div>
+          <div class="s-theme-options" role="group" aria-labelledby="settings-theme-label">
+            <button type="button" data-settings-theme="system" aria-pressed="true"><span class="s-theme-preview system" aria-hidden="true"></span>System</button>
+            <button type="button" data-settings-theme="light" aria-pressed="false"><span class="s-theme-preview light" aria-hidden="true"></span>Light</button>
+            <button type="button" data-settings-theme="dark" aria-pressed="false"><span class="s-theme-preview dark" aria-hidden="true"></span>Dark</button>
+          </div>
+          <div class="s-note">Settings stays opaque for readability. The meeting overlay uses the background opacity below.</div>
+        </section>
+        <section class="s-group">
+        <div class="s-setting-row">
         <label class="s-label" for="s-opacity-slider">Background opacity <span class="s-hint">text and controls stay readable</span></label>
         <div class="s-opacity-row">
           <input type="range" id="s-opacity-slider" min="20" max="100" step="1" value="100" />
           <span id="s-opacity-value">100%</span>
         </div>
+        </div>
+        <div class="s-setting-row">
         <label class="s-label" for="answer-text-size">Answer text size</label>
         <select id="answer-text-size" class="s-select">
           <option value="small">Small</option><option value="medium" selected>Medium</option><option value="large">Large</option>
         </select>
+        </div>
+        <div class="s-setting-row">
         <label class="s-label" for="transcript-text-size">Transcript text size</label>
         <select id="transcript-text-size" class="s-select">
           <option value="small">Small</option><option value="medium" selected>Medium</option><option value="large">Large</option>
         </select>
+        </div>
+        </section>
       </div>
 
 

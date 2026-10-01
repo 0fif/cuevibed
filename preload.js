@@ -4,6 +4,8 @@ const platform = process.platform;
 contextBridge.exposeInMainWorld('cue', {
   platform,
   settingsGet: () => ipcRenderer.invoke('settings:get'),
+  settingsOpenWindow: () => ipcRenderer.invoke('settings:open-window'),
+  settingsCloseWindow: () => ipcRenderer.send('settings:close-window'),
   settingsSet: (patch) => ipcRenderer.invoke('settings:set', patch),
   whisperModels: () => ipcRenderer.invoke('whisper:models'),
   whisperModelDownload: (modelId) => ipcRenderer.invoke('whisper:model-download', modelId),
@@ -47,7 +49,7 @@ contextBridge.exposeInMainWorld('cue', {
   log: (msg) => ipcRenderer.send('log', msg),
   on: (channel, cb) => {
     const allowed = ['capture:state', 'llm:start', 'llm:token', 'llm:done', 'llm:error', 'status', 'transcript', 'transcript:restore', 'stt:interim', 'stt:final', 'stt:status', 'vad:state', 'applink:consent-request', 'hide:toggle', 'whisper:download-progress', 'whisper:models-changed', 'publik:state', 'slides:update'];
-    if (!allowed.includes(channel)) return;
+    if (!allowed.includes(channel) && !['settings:updated', 'settings:close-request'].includes(channel)) return;
     ipcRenderer.on(channel, (_e, data) => cb(data));
   }
 });
