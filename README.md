@@ -1,10 +1,10 @@
 <div align="center">
 
-# cue
+# CueVibed
 
-**An open-source AI copilot that floats over your screen — sees what you see, hears your meetings, and stays hidden from screen shares.**
+**A local-first AI meeting copilot for macOS with live transcription and streaming answers. Bring your own model.**
 
-A free, self-hosted alternative to Cluely. Bring your own AI key (OpenAI · Anthropic · Google Gemini · Azure AI Foundry . OpenAI-compatible endpoints).
+A fork of [Cue](https://github.com/Blueturboguy07/cue), focused on macOS with Apple Silicon. Connect a local model through an OpenAI-compatible endpoint, or bring your own cloud provider key.
 
 <img src="docs/tutorial.png" width="620" alt="cue first-run tutorial" />
 
@@ -34,6 +34,10 @@ It's a copilot for **live meetings** ("what do I say to that?") and **coding pro
 
 ### Platform support
 
+**CueVibed's supported platform is macOS with Apple Silicon.** Windows support is inherited from Cue and is **community-supported, untested, and not actively maintained** in this fork. Community fixes are welcome. Intel Mac and Linux support are also inherited and untested.
+
+The table below describes inherited capabilities, not a guarantee of Windows compatibility in CueVibed.
+
 |  | macOS | Windows 11 / 10 2004+ |
 |---|---|---|
 | Screen + coding help | ✅ | ✅ |
@@ -49,15 +53,15 @@ It's a copilot for **live meetings** ("what do I say to that?") and **coding pro
 
 ## Install
 
-Option A is the easiest on both platforms. Use Option B if you'd rather run from source.
+CueVibed targets macOS with Apple Silicon. The inherited installation and build instructions below retain other platforms for community contributors; those builds are untested in this fork.
 
 ### Option A — Download the app (easiest)
 
 Go to the [**Releases**](../../releases) page, then choose your platform:
 
-- **Windows 10/11 (x64):** download **`cue-win-x64.exe`**, run it, and launch cue from the Start menu. The installer is unsigned, so Windows SmartScreen may show an **Unknown publisher** warning.
+- **Windows 10/11 (x64), community-supported and untested:** if available, download **`cue-win-x64.exe`**, run it, and launch cue from the Start menu. The installer is unsigned, so Windows SmartScreen may show an **Unknown publisher** warning.
 - **macOS (Apple Silicon):** download **`cue-…-mac-arm64.zip`**, unzip it, drag **`cue.app`** into **Applications**, and open it.
-- **macOS (Intel):** download **`cue-…-mac-x64.zip`**, unzip it, drag **`cue.app`** into **Applications**, and open it.
+- **macOS (Intel), untested:** if available, download **`cue-…-mac-x64.zip`**, unzip it, drag **`cue.app`** into **Applications**, and open it.
 
 ### Option B — Run from source (macOS or Windows)
 
