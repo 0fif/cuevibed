@@ -2,313 +2,373 @@
 
 # CueVibed
 
-**A local-first AI meeting copilot for macOS with live transcription and streaming answers. Bring your own model.**
+**An open-source AI meeting copilot for macOS. Live transcripts, automatic answers, and a UI you can actually make comfortable.**
 
-A fork of [Cue](https://github.com/Blueturboguy07/cue), focused on macOS with Apple Silicon. Connect a local model through an OpenAI-compatible endpoint, or bring your own cloud provider key.
+Use a local model, bring your own API key, and keep the conversation in view.
 
-<img src="docs/tutorial.png" width="620" alt="cue first-run tutorial" />
+<img src="docs/tutorial.png" width="620" alt="CueVibed welcome screen with its circular avatar and redesigned tutorial" />
 
 </div>
 
----
-
 > [!IMPORTANT]
-> **Please read this first.** cue tries to stay out of screen recordings/shares, but this is **best-effort, not guaranteed** — on macOS 15.4+ Apple can let modern capture tools see it anyway, on Windows 10 builds older than 2004 it degrades to a black box instead of true exclusion, and a phone camera always can. Using a hidden assistant during a **proctored exam, job interview, or recorded meeting** may break that platform's rules and, in some places, consent laws. cue is built for legitimate uses — your own notes, studying, accessibility, and practice. **You are responsible for how you use it.**
+> **Please read this first.** CueVibed tries to stay out of screen recordings/shares, but this is **best-effort, not guaranteed** — on macOS 15.4+ Apple can let modern capture tools see it anyway, and a phone camera always can. Using a hidden assistant during a **proctored exam, job interview, or recorded meeting** may break that platform's rules and, in some places, consent laws. CueVibed is built for legitimate uses — your own notes, studying, accessibility, and practice. **You are responsible for how you use it.**
 
----
+## Why CueVibed?
 
-## What it does
+Meeting assistants should help while the conversation is happening. CueVibed listens to your microphone and meeting audio, transcribes them separately, and can automatically suggest a short answer when the other side asks a question.
 
-### CueVibed additions
+This is a fork of [Cue](https://github.com/Blueturboguy07/cue), focused on **macOS with Apple Silicon**. Cue provides the foundation: transcription, model integrations, screen-aware assistance, and meeting memory. CueVibed adds automatic question responses and a more usable, customizable meeting interface.
 
-- **Resize the overlay:** drag the bottom-right corner handle, or focus it and use the arrow keys. The answer area expands with the window, and its dimensions are saved.
-- **Auto-answer:** enable **Auto-answer** beside the composer to respond to questions from the **Them** channel. Turn on **Settings → Audio → Meeting audio**, save, and start a session first. Detection uses English question/request patterns, waits briefly for transcript continuation, and suppresses duplicate triggers. Auto-answer is off by default and only responds to call audio, never your microphone.
-- **Microphone noise handling:** microphone noise suppression and echo cancellation remain enabled; automatic gain is disabled. Speech detection requires sustained energy before opening an utterance, reducing isolated keyboard/mouse clicks. This is not a speech classifier and may still admit sustained noise or miss very brief speech.
+Run transcription and answers locally, or choose hosted providers independently. The app is open source; hosted providers may charge for their services. A local setup needs a running model server and downloaded models.
 
-For development, run `npm install`, prepare the local Whisper runtime with `npm run prepare:whisper`, then run `npm start`. Quit the installed Cue app first to avoid competing shortcuts and microphone sessions. These source changes do not update an existing app in Applications.
+## What this fork adds
 
-cue floats a small glass panel on top of everything. It takes **three separate inputs** — your **screen**, your **microphone**, and your **meeting audio** (what the other person says) — and uses an AI model to help you in real time.
+These are changes relative to the Cue version this fork started from—not a claim about every future upstream release.
+
+| Addition | What it means during a meeting |
+|---|---|
+| **Automatic answers** | Detects questions and requests in meeting audio and generates a brief response without clicking Send. Includes a short delay for continuation and duplicate suppression. |
+| **Resizable overlay** | Drag the bottom-right handle to make room for answers. Window dimensions are remembered. |
+| **Conversation scrolling** | Replies stay in view as they stream. Scroll up to read earlier answers; return to the bottom to resume following. |
+| **Transcript history open by default** | See the conversation immediately; tuck it away with the history button when you want more space. |
+| **Separate Settings window** | Drag Settings aside or onto another display. It stays above the meeting overlay while open. |
+| **Redesigned Settings** | Sidebar navigation, grouped controls, responsive rows, and consistent line icons. |
+| **Readable transparency** | Background opacity changes without fading the answer text and controls. |
+| **Independent text sizes** | Choose Small, Medium, or Large separately for answers and transcripts. |
+| **Settings themes** | System, Light, and Dark, with an opaque Settings surface independent of overlay transparency. |
+| **Noise handling adjustments** | Automatic microphone gain is disabled and speech detection requires sustained sound before accepting an utterance, reducing isolated click triggers. |
+| **Refreshed onboarding** | CueVibed branding, clearer setup copy, and a consistent visual style. |
+
+Noise filtering is not a speech classifier: sustained noise can still get through, and very short speech can be missed.
+
+## What you can do
 
 | Feature | How to trigger | What it uses |
 |---|---|---|
-| **Smart assist** | `⌘` `⇧` `↵` (macOS) or `Ctrl` `Shift` `Enter` (Windows) | your screen + recent conversation |
-| **What should I say?** | `⌘` `↵` (macOS) or `Ctrl` `Enter` (Windows) | meeting audio + your mic |
-| **Recap** | button | the whole conversation |
-| **Ask anything** | type + `↵` | your screen + conversation |
-| **Solve a coding problem** | `⌘` `H` (macOS) or `Ctrl` `H` (Windows) | your screen only |
-| **Smart** toggle | pill in the box | switches to a smarter (slower) model |
+| **Smart assist** | `⌘` `⇧` `↵` | Your screen + recent conversation |
+| **What should I say?** | `⌘` `↵` | Meeting audio + your mic |
+| **Recap** | Button | The conversation |
+| **Ask anything** | Type + `↵` | Your screen + conversation |
+| **Solve a coding problem** | `⌘` `H` | Your screen only |
+| **Smart** toggle | Pill in the typing box | Switches between your configured Fast and Smart models |
+| **Auto-answer** | Enable the toggle beside the typing box | Detected questions from meeting audio (**Them**) + recent conversation |
 
-It's a copilot for **live meetings** ("what do I say to that?") and **coding problems** (screenshot → full solution), and it's designed to be **invisible in screen shares** so it stays your private assistant.
+- **Follow a live transcript:** your microphone appears as **You**; system audio appears as **Them**.
+- **Get automatic or manual answers:** enable Auto-answer, type a question, or ask what to say next.
+- **Ask about your screen:** use Smart assist with a model that supports image input.
+- **Recap the conversation:** generate a summary using your selected model.
+- **Keep meeting context:** inherited meeting memory saves transcripts locally and can generate notes with your chosen chat provider.
+- **Choose your stack:** local Whisper transcription, local OpenAI-compatible chat servers, or supported hosted providers.
 
-### Platform support
+**Auto-answer is off by default.** It responds only to the **Them** channel and uses lightweight English question/request patterns. It will not answer every sentence or reliably understand every phrasing.
 
-**CueVibed's supported platform is macOS with Apple Silicon.** Windows support is inherited from Cue and is **community-supported, untested, and not actively maintained** in this fork. Community fixes are welcome. Intel Mac and Linux support are also inherited and untested.
+**There is no built-in web research or document RAG pipeline.** Answers come from your selected model and the context supplied by the app. They are not automatically checked against current documentation or guaranteed to be correct.
 
-The table below describes inherited capabilities, not a guarantee of Windows compatibility in CueVibed.
+## Run on macOS
 
-|  | macOS | Windows 11 / 10 2004+ |
-|---|---|---|
-| Screen + coding help | ✅ | ✅ |
-| Your mic (the **You** channel) | ✅ | ✅ |
-| Meeting audio (the **Them** channel) | ✅ macOS 14.4+ | ✅ |
-| Hidden from screen shares | ⚠️ best-effort, weaker on macOS 15.4+ | ✅ `WDA_EXCLUDEFROMCAPTURE` |
-| Permissions to grant | Microphone **and** Screen Recording | Microphone only |
+CueVibed supports **macOS on Apple Silicon**. **Windows is not supported, and there are no plans for a Windows port.** Linux and Intel Macs are also unsupported.
 
-> [!NOTE]
-> **Meeting audio needs macOS 14.4+.** Capturing the *other* person — what powers **What should I say?** and **Recap** — uses system-audio loopback. On Windows that works out of the box. On macOS it relies on ScreenCaptureKit, which cue enables through Chromium's `MacLoopbackAudioForScreenShare` and `MacSckSystemAudioLoopbackOverride` switches; on older macOS the *Them* channel stays silent while your screen and the **You** channel keep working.
+### Download a packaged app
 
----
+Check this fork's [Releases](../../releases) for an Apple Silicon macOS build. If one is available, download the `mac-arm64.zip`, unzip it, and move `cue.app` into Applications. If there is no suitable release, use the source instructions below. Upstream Cue releases do not include CueVibed's changes.
 
-## Install
+### From source
 
-CueVibed targets macOS with Apple Silicon. The inherited installation and build instructions below retain other platforms for community contributors; those builds are untested in this fork.
+Requirements:
 
-### Option A — Download the app (easiest)
-
-Go to the [**Releases**](../../releases) page, then choose your platform:
-
-- **Windows 10/11 (x64), community-supported and untested:** if available, download **`cue-win-x64.exe`**, run it, and launch cue from the Start menu. The installer is unsigned, so Windows SmartScreen may show an **Unknown publisher** warning.
-- **macOS (Apple Silicon):** download **`cue-…-mac-arm64.zip`**, unzip it, drag **`cue.app`** into **Applications**, and open it.
-- **macOS (Intel), untested:** if available, download **`cue-…-mac-x64.zip`**, unzip it, drag **`cue.app`** into **Applications**, and open it.
-
-### Option B — Run from source (macOS or Windows)
-
-You need [Node.js](https://nodejs.org) 22.12+ installed (required by dev dependencies). No Xcode and no Visual Studio build tools required — cue deliberately avoids native modules.
+- Node.js **22.12 or newer** and npm.
+- For local transcription: **CMake** and **Xcode command-line tools** to prepare the Whisper runtime.
+- Microphone and screen/audio-recording permissions for the capture features you use.
 
 ```bash
-git clone https://github.com/Blueturboguy07/cue.git
-cd cue
+git clone https://github.com/0fif/cuevibed.git
+cd cuevibed
 npm install
+npm run prepare:whisper
 npm start
 ```
 
-That's the whole setup on Windows. There's no permission dance — grant the mic when Windows asks and you're done.
+Skip `prepare:whisper` if you only use hosted transcription. It prepares the runtime; you still download a speech model from Settings.
 
-To build a standalone app:
+Quit other running copies of Cue or CueVibed before starting. Running from source does not update an app already in Applications.
+
+### Permissions and macOS support
+
+Meeting-audio capture requires **macOS 14.4+** according to the app's capture requirements. Screen assistance and microphone transcription are separate features.
+
+| Capability | macOS setup |
+|---|---|
+| Your microphone (**You**) | Allow Microphone access |
+| Meeting/system audio (**Them**) | Enable Meeting audio and grant screen/audio-recording access |
+| Screen-aware assistance | Grant Screen Recording access; choose a vision-capable chat model |
+| Screen-share exclusion | Best effort; test your actual sharing setup |
+
+Open **System Settings → Privacy & Security → Microphone** and **Screen Recording** (the wording can include system audio on newer macOS versions). Enable the running app, which may still appear as **cue** or **Electron**, and quit/reopen if requested. Permissions granted to an installed build may not apply to a development build.
+
+### Build an app
+
 ```bash
-npm run pack        # unpacked app in dist/ (either OS)
-npm run pack:win    # unpacked Windows app -> dist/win-unpacked/cue.exe
-npm run dist:mac    # macOS zip            -> dist/
-npm run dist:win    # Windows installer    -> dist/cue-win-x64.exe
-```
-> **macOS note:** the packaged app is **ad-hoc signed** unless a Developer ID certificate is configured. macOS ties permission grants to the exact build, so **rebuilding resets the mic/screen permissions** — you'll grant them again. For everyday use, build once and keep it. Windows has no equivalent problem.
-To build a packaged app:
-```bash
-npm run dist:mac    # macOS build
-npm run dist:win    # Windows build
-npm run dist:linux  # Linux x64 AppImage
+CUE_BUNDLE_WHISPER=1 npm run dist:mac:arm64
 ```
 
-Packaged builds include a pinned `whisper.cpp` runtime. When running from source, prepare the matching runtime once:
+For an unpacked development app, use `CUE_BUNDLE_WHISPER=1 npm run pack`. To check the prepared runtime, use `npm run verify:whisper-runtime`.
 
-```bash
-npm run prepare:whisper
-```
+Build output goes into `dist/`. `CUE_BUNDLE_WHISPER=1` prepares and bundles the local Whisper runtime; macOS builds skip it without that flag. Signing and notarization depend on your build configuration; rebuilding may require granting macOS permissions again.
 
-Windows x64 and Linux x64/arm64 use checksum-verified binaries from the pinned upstream release. macOS x64/arm64 builds `whisper-server` from the same pinned source tag and requires CMake plus Xcode command-line tools.
+Some inherited app names and storage paths still say `cue`. CueVibed currently shares Cue's app identifier and user-data location, so it is not an isolated side-by-side installation.
 
-> Note: permission grants can reset after a rebuild, so you may need to re-enable microphone/screen access after packaging a fresh build.
+## Set up your first meeting
 
----
+### 1. Connect a chat model
 
-## First launch — the 1-minute setup
+Open **Settings → Connection**. Choose a provider and configure its credentials and model IDs.
 
-When cue opens the first time, a **built-in tutorial** walks you through everything below. You can reopen it anytime by clicking the **help** icon (top-left of the pill). Here's the same thing in writing.
+For a local OpenAI-compatible server such as oMLX, select **Custom**:
 
-### Step 1 — Grant permissions
+| Setting | Example |
+|---|---|
+| Base URL | `http://127.0.0.1:8000/v1` |
+| API key | Your local server's key, if authentication is enabled |
+| Fast model | The exact model ID served by your server |
+| Smart model | The same model, or another model for the Smart toggle |
 
-cue can't help until your OS lets it see and hear. When you first use a feature you'll usually be prompted — click **Allow**. If no prompt appears, grant access manually.
+Ollama also has its own provider option. Match the URL and model names to your running server. A text-only model can answer conversation questions; screen-aware requests need image support.
 
-**On macOS — two grants.** System Settings → **Privacy & Security** → **Microphone** and **Screen Recording** → turn on **cue**. macOS may ask you to **quit & reopen** cue — let it. Screen Recording covers both the screenshot features and meeting-audio capture.
+### Hosted providers and API keys
 
-**On Windows — one grant.** Only the microphone needs permission: Settings → **Privacy & security** → **Microphone** → turn on **Microphone access** *and* **Let desktop apps access your microphone**. Screenshots and meeting audio need no permission at all — they work immediately, using Windows loopback capture.
+Use the toolbar Settings button or the `…` button beside the typing box, then open **Connection**. Provider keys are stored locally in `cue-data.json` and used for requests to the corresponding provider. Chat and speech-to-text access are separate: a working chat key does not necessarily permit transcription.
 
-### Step 2 — Pick how cue answers: publik API (default) or your own key
-
-The packaged builds from the Releases page run on **publik API** by default.
-You need no account and no key to open cue. The first-run guide shows a short
-disclosure. It states the price: every request costs 50% of the model's
-published list price. It also states the average cost: most people spend
-under $2 a month. It also states where your data goes: your prompts and
-screenshots go through publik's servers to a shared model account, and
-publik never trains on them. Nothing is set up until you press **Continue
-with publik API**. A new computer starts at $0.00. Settings → Keys shows
-the balance line and a **Link this computer & pick a plan** button. Linking
-this computer to your publik account gives $0.05 of free use, once. Then
-add a plan or a pack to keep going. **Use my own key instead** switches
-to any of the providers below at any time. cue never replaces a key you have
-already entered.
-
-A build from source has no publik app token unless you export
-`PUBLIK_APP_TOKEN`; without one the publik option does not appear and cue works
-exactly as before. The release workflow embeds the token from the
-`PUBLIK_APP_TOKEN` repository secret (it is a publishable identifier that lets
-the gateway attribute installs to cue — it holds no balance and is not a key).
-
-### Step 2 (alternative) — Add your AI key (bring your own)
-
-cue uses **your own** API key, so it's free to run (you only pay your AI provider for what you use). Click the **`...`** button in the input box (or press `⌘` `,` on macOS / `Ctrl` `,` on Windows) to open **Settings**, pick a provider, and paste your key:
-
-| Provider | Get a key | Notes |
+| Provider | Key/account | Configuration in CueVibed |
 |---|---|---|
-| **Cerebras** | [cloud.cerebras.ai](https://cloud.cerebras.ai) | Fast OpenAI-compatible chat at `https://api.cerebras.ai/v1`. No speech-to-text — add an OpenAI, Gemini, or Deepgram key for listening. |
-| **OpenAI** | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | One key does everything — **but** for the *listening* features the key must have **Whisper / audio** access (a "restricted" project key that only allows chat will give a 403 on transcription). |
-| **Anthropic (Claude)** | [console.anthropic.com](https://console.anthropic.com) | Great for screen & coding help. Claude has no speech-to-text, so add an OpenAI or Gemini key too if you want the listening features. |
-| **Google Gemini** | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | One key does chat + transcription. |
-| **Azure AI Foundry** | [ai.azure.com](https://ai.azure.com) | Paste your **endpoint** plus your key in Settings. **Azure OpenAI:** `https://&lt;resource&gt;.openai.azure.com/openai` — **AI Foundry:** `https://&lt;host&gt;.cognitiveservices.azure.com` (cue appends `/openai/v1` itself). The **model** fields are your deployment names. No speech-to-text — add an OpenAI or Gemini key for listening. |
-| **DeepSeek** | [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys) | OpenAI-compatible chat API. No speech-to-text — add an OpenAI or Gemini key too if you want the listening features. |
-| **Groq** | [console.groq.com](https://console.groq.com) | Fast OpenAI-compatible chat. Groq Whisper can also handle transcription if you pick Groq on the Audio tab. |
-| **Custom** | Your endpoint or gateway | Any OpenAI-compatible Chat Completions endpoint. The API key is optional for unauthenticated local servers. |
+| **Cerebras** | [Cerebras console](https://cloud.cerebras.ai) | Chat provider; use Local or another configured service for transcription. |
+| **OpenAI** | [OpenAI API keys](https://platform.openai.com/api-keys) | Chat and speech integrations. A key restricted to chat alone may fail for transcription. |
+| **Anthropic** | [Anthropic console](https://console.anthropic.com) | Chat and screen-aware assistance with compatible models; configure transcription separately. |
+| **Google Gemini** | [Google AI Studio](https://aistudio.google.com/apikey) | Chat and transcription integrations; model access and quotas depend on your account. |
+| **Azure AI Foundry** | [Azure AI](https://ai.azure.com) | Set the endpoint and credentials. Model fields use your deployment names; transcription is separate. |
+| **DeepSeek** | [DeepSeek platform](https://platform.deepseek.com/api_keys) | OpenAI-compatible chat integration; configure transcription separately. |
+| **Groq** | [Groq console](https://console.groq.com) | Chat integration and a Groq Whisper batch-transcription path in Auto mode. |
+| **MiniMax** | Your MiniMax account | Set the key and matching Global/China region in Connection. |
+| **Ollama** | Your local server | Set the server URL and installed model IDs. |
+| **Custom** | Your endpoint or gateway | Set the Base URL and Fast/Smart model IDs; chat authentication is optional if the server permits it. |
 
-To use an OpenAI-compatible endpoint, select **Custom** and configure its Base URL, API key, and Fast/Smart model IDs. Custom endpoints handle LLM requests only; listening continues to use Deepgram, OpenAI, or Gemini credentials.
+For Azure, the inherited integration normalizes endpoints to an OpenAI-compatible `/openai/v1` path. Use the endpoint and deployment names from your service rather than a generic model nickname.
 
-| Example | Base URL | Model |
+Custom endpoint examples:
+
+| Server | Base URL example | Model field |
 |---|---|---|
-| OpenClaw local gateway | `http://127.0.0.1:18789/v1` | `openclaw/default` |
-| Ollama | `http://127.0.0.1:11434/v1` | An installed Ollama model ID |
+| oMLX | `http://127.0.0.1:8000/v1` | Exact model ID loaded in oMLX |
+| Ollama through Custom | `http://127.0.0.1:11434/v1` | Installed Ollama model ID |
+| OpenClaw-compatible gateway | `http://127.0.0.1:18789/v1` | The gateway's configured model ID |
 
-Your key is stored **only on your computer** (in `cue-data.json`) and is sent **only** to that provider. cue has no server and collects nothing.
+**Custom transcription is opt-in.** Selecting Custom for chat does not send audio there automatically. Select **Custom in Audio** only if the endpoint supports audio transcription. The current transcription implementation requires both the Custom key and Base URL, as well as a supported transcription model.
 
-### Optional — transcribe locally with whisper.cpp
+### Optional publik API integration inherited from Cue
 
-Open **Settings → Audio**, choose **Local**, and download a model. `base.en` is the recommended English default; all 30 models supported by the official whisper.cpp download script are available, including multilingual, quantized, large, turbo, and TinyDiarize variants.
+The inherited publik integration is available only in builds configured with a publik app token. Without one, its UI stays hidden. It is not required to use a local model or your own provider keys.
 
-Local mode is independent from the chat provider, so you can use local speech-to-text with OpenAI, Anthropic, or Gemini chat. The selected model loads once when listening starts, serves both the **You** and **Them** channels, and unloads only after queued speech has been transcribed when listening stops.
+When present, the onboarding disclosure explains pricing, the data path, and account setup before activation. Connection includes linking, balance, pricing, and disconnect controls. Use **Use my own key instead** to choose another provider. Check the disclosure and service's current pricing for request costs, plans, and any available credits.
 
-- Audio inference stays on your computer and audio is never written to a temporary file.
-- Model files are downloaded only when you ask, support cancel/resume, and are checked against pinned byte counts and SHA-256 hashes.
-- Local mode never silently sends audio to a cloud fallback. A local failure is reported without sending the audio elsewhere.
-- Models are stored under Cue's Electron user-data directory and can be imported or deleted from Settings.
+For maintainers, source builds can use `PUBLIK_APP_TOKEN`; the inherited release workflow can embed a repository secret of the same name. This integration should not be confused with a guarantee that every CueVibed build includes a hosted service.
 
-### Optional — word-by-word transcription with only a Gemini key
+### 2. Configure transcription
 
-Deepgram and OpenAI keys stream transcripts word by word automatically. A Gemini key transcribes sentence by sentence unless you pick **Gemini** explicitly under **Settings → Audio**, which switches it to the `gemini-3.5-transcribe-live` streaming model (its running hypothesis gets revised as you speak, which some people find jumpy — that's why it's opt-in).
+Open **Settings → Audio**:
+
+1. Choose **Local** for on-device Whisper transcription.
+2. Select a model, download it, and wait for the runtime and model to be ready.
+3. Enable **Meeting audio** to capture the other side of the call.
+
+Alternatively, choose a hosted transcription option. The chat provider and transcription provider are configured separately.
+
+Local mode does not silently fall back to cloud transcription. Model downloads need a network connection; local transcription itself runs on your Mac.
+
+### Local model management and streaming transcription
+
+`base.en` is the default recommended English model. Settings includes multilingual and quantized alternatives. Larger models can require substantially more memory and inference time; download size is not a runtime memory estimate.
+
+- The local model loads once per listening session and serves both **You** and **Them**.
+- Downloads support cancellation/resume and are verified against pinned sizes and SHA-256 hashes.
+- Models can be imported or deleted in **Settings → Audio**.
+- Captured audio is processed in memory rather than written to temporary audio files.
+- Stopping capture stops new audio immediately; queued local transcription is allowed a bounded drain before the runtime shuts down.
+
+The inherited streaming implementation supports Deepgram and OpenAI, with batch-transcription paths for other configurations. In **Auto**, available credentials determine the route; local transcription must be explicitly selected to keep audio local. The current Audio UI exposes Auto, Local, OpenAI, and Custom. Gemini Live exists in the underlying integration, but there is no Gemini-specific selector in the current UI. Auto with a Gemini-only key uses batch transcription.
+
+### 3. Start listening
+
+Grant the permissions macOS requests, then click **Start session**. If macOS asks you to quit and reopen the app after granting access, do so.
+
+Meeting audio captures **system output**, not a selected Zoom or Teams participant. Browser videos, music, and other audible apps can also appear as **Them**. Pause unrelated audio during a call.
+
+Enable **Auto-answer** beside the typing box to respond to detected questions. Keep it off when you want to ask manually.
+
+### Useful controls
+
+| Control | Action |
+|---|---|
+| **Start session / Stop** | Start or stop capture |
+| **Auto-answer** | Toggle responses to detected meeting-audio questions |
+| **Smart** | Switch between your configured Fast and Smart models |
+| **Transcription history** | Show or hide the transcript sidebar |
+| **Hide** | Collapse the meeting panel |
+| **Bottom-right resize handle** | Resize the overlay; arrow keys also work when the handle is focused |
+| **⌘ Enter** | Suggest what to say next |
+| **⌘ Shift Enter** | Smart assist |
+| **⌘ H** | Solve the coding problem on screen |
+| **⌘ Shift X** | Quit |
+
+Drag the overlay by its top toolbar. Empty areas around the overlay are click-through. Reopen the tutorial using the help icon; Settings opens in its own movable window.
 
 ### Meeting memory
 
-cue keeps what it hears. Every transcript turn is saved to `meetings.json` in cue's data folder as it lands, so a crash or a quit mid-meeting loses nothing: relaunch within 30 minutes and the transcript is restored to the sidebar and **Recap** / **Follow-up questions** carry on from where the conversation was. When you stop listening, cue writes notes for the meeting with your chat model — summary, key points, decisions, action items, follow-ups — and the summaries of your last three meetings are given to the model as background for later conversations (the live transcript always takes priority). A 30-minute silence, the clear-transcript button, or a stale meeting at launch closes the meeting. The newest 50 meetings are kept; nothing leaves your computer except the transcript sent to your chosen provider to write the notes.
+Transcripts are persisted in `meetings.json` in the app's data directory. Writes are coalesced, so an abrupt crash can lose the most recent unsaved turns; this is not a guarantee of zero data loss.
 
-### Optional — tailor answers to your background
+An open meeting with activity within the last 30 minutes can be resumed on launch. After a qualifying meeting ends, the selected chat model generates notes such as a summary, decisions, action items, and follow-ups. The default minimum for notes is four transcript turns. The last three meeting summaries can provide context for future requests, and the newest 50 meetings are retained.
 
-In **Settings**, paste your résumé or professional background into **Résumé / professional background**. cue uses it as the factual reference for career-related answers and says when the résumé does not provide a detail. You can clear it anytime.
+Stopping listening or clearing the current transcript ends the current meeting. Clearing the visible transcript is not the same as deleting previously saved meeting history.
 
-### Step 3 — The Zoom setting (only needed for Zoom)
+### AI rules and professional background
 
-cue is hidden from most screen-share tools automatically — **Google Meet, Microsoft Teams, and QuickTime need nothing.** **Zoom** has a specific setting that decides whether it respects cue's "don't capture me" flag:
+Use **Settings → AI behavior → AI rules** to control tone, length, and format. These rules apply to the response modes described in the UI; coding-problem solves have their own formatting rules.
 
-> **Zoom → Settings → Share Screen → Advanced → Screen capture mode → choose "Advanced capture with window filtering."**
+The inherited model-context code also supports saved résumé and job-description fields. The current Settings UI does **not** expose a résumé editor. Existing saved background text can still be included in model requests. Keep that in mind if you reuse an upstream Cue data directory.
 
-<div align="center"><img src="docs/zoom-setting.png" width="560" alt="Zoom screen capture mode setting" /></div>
+### Screen sharing and Zoom
 
-**Why:** the *"...with window filtering"* modes tell Zoom to leave out windows that mark themselves as private — which is exactly what cue does. The **"Advanced capture without window filtering"** mode grabs the raw screen and **will show cue**, so avoid it.
+The original setup guidance recommends **Zoom → Settings → Share Screen → Advanced → Screen capture mode → Advanced capture with window filtering**, where that option is available. Capture settings and behavior can vary by Zoom/macOS version; test with a separate viewer before relying on exclusion.
 
----
+<div align="center"><img src="docs/zoom-setting.png" width="560" alt="Zoom's screen capture mode options, including window filtering" /></div>
 
-## How to use it
+Window filtering is intended to respect a window's capture-exclusion flag. Modes without filtering can include the overlay. Test Teams, Meet, and recording tools with your actual capture setup too. The macOS recording indicator can remain visible even when the overlay itself is excluded.
 
-> On Windows, press **`Ctrl`** wherever **`⌘`** appears below. cue's own UI relabels the keys to match your OS.
+## How it works
 
-- **`⌘` `↵` — What should I say?** Suggests what to say next from the conversation. Works from anywhere.
-- **`⌘` `⇧` `↵` — Smart assist.** The do-the-smart-thing key. On a coding problem it solves it; in a conversation it tells you what to say. Works from anywhere.
-- **`⌘` `H` — Solve what's on screen.** Screenshots a coding problem and returns the approach, code, and time/space complexity.
-- **Start session / End session** (top bar) — start or stop **listening** to a meeting. The green dot means it's live.
-- **Type a question** in the box and press `↵` to ask about your screen or conversation.
-- **Smart** — flip it on for a smarter, more thorough model; off for fast and cheap.
-- **Hide** collapses the panel to just the top bar. Drag cue around by the **top pill**. Quit with `⌘` `⇧` `X` on macOS or `Ctrl` `Shift` `X` on Windows.
+CueVibed is an Electron app. Its three inputs remain separate:
 
-The panel is see-through and click-through — the empty space around it never blocks the app behind it.
+- **Screen:** screenshots are captured when a screen-aware action needs them and supplied to your chat model.
+- **Microphone (You):** `getUserMedia` supplies audio to a 16 kHz processing pipeline.
+- **System audio (Them):** `getDisplayMedia` loopback captures system output through the macOS capture path. This is supported on macOS through the enabled ScreenCaptureKit loopback path.
 
----
+The renderer sends audio to the main process. Speech detection forms utterances for transcription, and transcript context feeds the selected chat model. Answers stream back into the overlay. The auto-answer detector watches **Them** transcripts without making a separate LLM classification request.
 
-## How it works (under the hood)
+For local transcription, one persistent `whisper-server` process listens on localhost at a temporary port with a random request path. Both channels share a serialized inference queue. Audio utterances have pre-roll so the start of speech can be retained.
 
-cue is an [Electron](https://www.electronjs.org/) app. Everything runs locally except the calls to your chosen AI provider.
-
-**The three inputs are kept completely separate:**
-- **Screen** — captured with Electron's `desktopCapturer` (full-resolution screenshots, taken only when a feature needs one).
-- **Your mic ("You")** — `getUserMedia` → downsampled to 16 kHz audio → transcribed.
-- **Meeting audio ("Them")** — `getDisplayMedia` loopback capture of your system's output audio, kept on its own channel so cue knows *who* said what. **Windows only** — Chromium doesn't implement loopback capture elsewhere, so on macOS this stream comes back video-only and the channel stays silent.
-
-Both audio streams are transcribed by the independently selected speech provider (local whisper.cpp, Deepgram, OpenAI, or Gemini) and fed, with an optional screenshot, to your chat model. Responses **stream** into the panel word-by-word.
-
-When Local transcription is selected, Cue runs one persistent `whisper-server` sidecar bound to `127.0.0.1` on a temporary port with a random request path. Voice activity detection creates bounded in-memory utterances with pre-roll, and both channels share a serialized inference queue because one Whisper context must not process concurrent requests. Stop immediately ends new audio capture, drains the current queue for a bounded period, then terminates the sidecar.
-
-**The invisibility** is a single window flag — `setContentProtection(true)` — which the OS enforces:
-
-- **macOS:** sets `NSWindowSharingNone`, asking the window server to exclude cue from capture streams. On macOS 15.4+ Apple lets some capture tools ignore it, which is why it's best-effort (see the disclaimer at the top).
-- **Windows:** sets `WDA_EXCLUDEFROMCAPTURE` via `SetWindowDisplayAffinity`, and the compositor drops the window from every capture path. Windows 10 builds before 2004 fall back to `WDA_MONITOR`, which renders a black box rather than truly excluding.
-
-It's the same mechanism DRM apps and Zoom's own toolbar use. It is **not** a GPU trick or a special overlay layer. Set `CUE_NO_PROTECT=1` to disable it while debugging.
-
-```
-main process ──┬─ overlay window (frameless, transparent, always-on-top, content-protected)
-               ├─ screenshot capture (desktopCapturer)
-               ├─ speech-to-text (Whisper / Gemini)      ── "You" + "Them" channels
-               └─ LLM streaming (OpenAI / Anthropic / Gemini / Custom)
-renderer ──────┴─ the glass UI + mic capture + system-audio loopback
+```text
+Main process
+  ├─ Meeting overlay: capture, transcript history, streaming answers
+  ├─ Separate Settings window: preferences only, no audio capture
+  ├─ Screenshot capture
+  ├─ Speech-to-text: local whisper.cpp or configured hosted service
+  ├─ Chat model: local endpoint or configured hosted provider
+  └─ Meeting memory: local transcript and notes storage
 ```
 
----
+Screen-share exclusion uses Electron's `setContentProtection(true)`. It is an OS-level request, not a guarantee against every capture path. The `CUE_NO_PROTECT=1` launch flag disables it for screenshots and debugging.
+
+## Privacy and capture behavior
+
+- Local transcription processes audio on your Mac. Hosted transcription sends audio to the configured speech provider.
+- Chat requests send their context to your selected model endpoint. A local endpoint can keep that processing on your machine; a hosted endpoint receives the request.
+- Screen-aware features include screenshots in model requests. Meeting notes also use your configured chat model.
+- Transcripts and generated meeting notes are saved locally in `meetings.json`; settings and credentials are stored locally in `cue-data.json`. Local storage is not the same as encrypted storage.
+- Screen-share exclusion is **best effort** and depends on macOS and the capture tool. Test your actual sharing setup; do not assume the overlay is invisible.
+- macOS can display a recording indicator while meeting-audio capture is active.
+- Captured audio utterances are kept in memory; downloaded speech-model files remain on disk until deleted. Transcripts and meeting notes, unlike audio buffers, are persisted.
+- Existing saved résumé/job-description text can be included in prompts sent to the selected chat provider.
+- Custom requests go to the Base URL you configure. If you enable Custom transcription, that endpoint receives audio too.
+- In hosted **Auto** transcription, the inherited fallback logic can try other configured speech providers. Local mode does not use that cloud fallback.
+- No CueVibed account is required for local or bring-your-own-key use. The optional publik service has its own account and data flow when enabled.
 
 ## Troubleshooting
 
-**"It says give access, but I already gave access." (macOS)**
-**Local transcription says the runtime is not prepared.**
-Packaged releases include the runtime. If you are running from source, run `npm run prepare:whisper` once and restart Cue. On macOS, install CMake and Xcode command-line tools first.
+**Headphones become muffled or silent when a session starts**
 
-**Local transcription says the model is missing or invalid.**
-Open **Settings → Audio**, select the model, and choose **Download**. A cancelled download can be resumed. If verification fails repeatedly, delete the partial/model file from the same screen and download it again.
+Try a separate microphone while keeping your headphones as the output. Activating a Bluetooth headset's microphone can switch it into lower-quality call mode. In development, using a phone microphone with Sony headphone output avoided a playback failure seen with the headset microphone.
 
-**A large local model is slow or runs out of memory.**
-Try `base.en`, `tiny.en`, or a quantized `q5`/`q8` model. Model size in Settings is the download size, not a guarantee of runtime RAM use; larger models require substantially more memory and CPU/GPU time.
+**Local transcription says the runtime is missing**
 
-**"It says give access, but I already gave access."**
-You probably granted an older build. Because the app is ad-hoc signed, a rebuild changes its identity and macOS stops honoring the old grant (the checkmark can linger). Toggle cue **off and on** in System Settings → Screen Recording, or remove and re-add it.
+Install CMake and Xcode command-line tools, run `npm run prepare:whisper`, and restart. Downloading a speech model alone does not install the runtime.
 
-**"What should I say?" or "Recap" never hear the other person (macOS).**
-Expected — meeting audio is Windows-only (see [Platform support](#platform-support)). Your own mic still transcribes, so those features see the *You* side of the conversation but never the *Them* side.
+**No meeting transcript or automatic answers**
 
-**cue has no dock or taskbar icon — how do I quit it?**
-That's deliberate; it stays out of your way. Press **`Ctrl` `Shift` `X`** (**`⌘` `⇧` `X`** on macOS). If the shortcut didn't register because another app claimed it, end the **cue** (or **electron**) process in Task Manager / Activity Monitor.
+Enable Meeting audio, check macOS recording permissions, and start a session. Confirm speech appears as **Them**, then enable Auto-answer. Detection is based on English question/request patterns; your microphone's **You** channel does not trigger it.
 
-**`npm start` crashes with `Cannot read properties of undefined (reading 'getPath')`.**
-Something in your environment set **`ELECTRON_RUN_AS_NODE=1`** — some editors and terminals do, notably VS Code's integrated terminal. That makes Electron boot as plain Node, so `require('electron')` returns a path string instead of the real module. Clear it and relaunch: `unset ELECTRON_RUN_AS_NODE` (PowerShell: `Remove-Item Env:\ELECTRON_RUN_AS_NODE`).
+**Local answers are slow**
 
-**A feature returns "403" / "no access to model."**
-Your API key is restricted. Most often it's an OpenAI **project key that only allows chat models** — it works for screen/coding help but 403s on transcription (Whisper). Fix: enable audio/Whisper on the key, use an unrestricted key, or add a Gemini key (cue falls back to it for transcription).
+Try a smaller model, keep responses short, and disable reasoning/thinking in your model server if supported. Transcription time, question detection, and model generation all contribute to the delay; there is no fixed latency guarantee.
 
-**Listening does nothing / no transcript.**
-Check Settings shows a transcription-capable key (OpenAI with Whisper, or Gemini). On macOS, also make sure Screen Recording is granted (meeting audio needs it). On Windows, make sure **Let desktop apps access your microphone** is on — the top-level Microphone toggle alone isn't enough.
+**The speech model is missing or invalid**
 
-**A Custom provider request cannot connect.**
-Confirm the Base URL includes the endpoint's `/v1` path when required, the selected model ID exists on that endpoint, and the local gateway is running. Custom provider credentials are intentionally not reused for speech-to-text.
+Open Settings → Audio, select the model, and download or import it. Wait for verification to finish. If validation repeatedly fails, delete the affected model through Settings and download it again.
 
-**cue shows up in my Zoom share.**
-Set Zoom's **Screen capture mode** to *"Advanced capture with window filtering"* (see Step 3). And remember: on macOS 15.4+ this can still fail — it's best-effort.
+**A local speech model is too slow or runs out of memory**
 
-**"cue is damaged and can't be opened."**
-Run `xattr -cr /Applications/cue.app` in Terminal once (see Install → Option A).
+Try `base.en`, `tiny.en`, or an available quantized model. The speech model and your chat model share system resources; increasing either can slow a live meeting pipeline.
 
----
+**“I already gave microphone or screen-recording access”**
 
-## Privacy
+Check the permission belongs to the build you are actually running. Rebuilding or switching between installed Cue and development Electron can require a new grant. Toggle the relevant app off/on in System Settings, then quit and reopen it; if necessary remove and re-add the app entry.
 
-- No Cue accounts, hosted service, or telemetry. cue collects nothing.
-- Your API keys live in a local file (`cue-data.json`) and are sent only to the provider you chose.
-- When Custom is selected, its API key and LLM request data are sent to the Base URL you configured.
-- Your optional résumé text also lives in `cue-data.json` and is sent with each model request to your selected AI provider. It is stored as plain text; clear it in Settings to remove it.
-- In Local transcription mode, microphone and meeting audio stay on your computer. In cloud transcription modes, audio is sent only to the selected speech provider.
-- Audio utterances and the current transcript stay in memory; Cue does not write captured audio to disk. Downloaded local model files remain on disk until you delete them.
-- Screenshots are sent to your selected chat provider only when a feature needs the screen.
+**There is no Dock icon—how do I quit?**
 
-## Contributing
+Use the toolbar Quit button or **⌘ Shift X**. If the shortcut is unavailable, use Activity Monitor to quit the running Cue/Electron process.
 
-Issues and PRs welcome. cue is intentionally small and readable — `main.js` (app + capture + AI), `renderer/` (the UI), `src/` (providers). No build step for the source (plain HTML/CSS/JS).
+**`npm start` fails with `Cannot read properties of undefined (reading 'getPath')`**
 
-## Credits & license
+Check whether your shell has `ELECTRON_RUN_AS_NODE` set. That makes Electron behave as Node rather than launching the app. Clear it and retry:
 
-Built as an open-source study of how tools like **Cluely** and **Interview Coder** work. Modeled on the open-source clones `pickle-com/glass` and `sohzm/cheating-daddy`.
+```bash
+unset ELECTRON_RUN_AS_NODE
+npm start
+```
 
-Local transcription uses [whisper.cpp](https://github.com/ggml-org/whisper.cpp), distributed under the MIT License. Its license notice is included in packaged runtimes.
+**A provider returns 403 or “no access to model”**
 
-**License: [GPL-3.0-or-later](LICENSE).**
+Check the selected model/deployment exists and that the key permits that API. Chat and transcription permissions can differ. Also check the account's quota/billing and that you selected the correct provider endpoint or MiniMax region. Local transcription does not require a hosted speech key.
+
+**Listening produces no transcript at all**
+
+Check microphone permission, the selected input device, and the chosen speech provider. For Local, both runtime and model must be ready. For hosted transcription, a chat-only key may not be enough. Check system-recording permission and Meeting audio separately if only **Them** is missing.
+
+**A Custom endpoint cannot connect**
+
+Make sure the server is running, the Base URL uses the correct port and `/v1` path, authentication matches, and the model ID exists. A working chat endpoint does not imply audio transcription support. Custom transcription must be selected explicitly and currently needs both a Base URL and key.
+
+**CueVibed appears in a Zoom share**
+
+Check the window-filtering option described above, make sure you did not start with `CUE_NO_PROTECT=1`, and test from another participant's view. Capture protection can still be bypassed by modern capture tools.
+
+**macOS says the downloaded app is damaged or cannot be opened**
+
+Build signing and notarization matter. Prefer a verified release from this repository or build from source. For a trusted build affected specifically by quarantine, `xattr -cr /Applications/cue.app` clears quarantine and other extended attributes. It does not repair a corrupted or incorrectly signed app; verify the download first.
+
+**I want to take a screenshot of CueVibed**
+
+Quit the app, then launch with screen-capture protection disabled:
+
+```bash
+CUE_NO_PROTECT=1 npm start
+```
+
+This also makes the app available to screen-sharing tools. Quit and launch normally to restore protection.
+
+## Development and contributions
+
+The app uses Electron with plain HTML, CSS, and JavaScript. Start with `main.js` for windows and orchestration, `renderer/` for the UI, and `src/` for model integrations, transcription, and meeting logic.
+
+```bash
+npm test
+```
+
+Issues and PRs are welcome, especially macOS usability fixes and reproducible audio or transcription bugs. Include your macOS version, hardware, provider/model, and reproduction steps. Remove keys and private meeting content from logs before sharing them.
+
+## Credits and license
+
+- [Cue](https://github.com/Blueturboguy07/cue) — the upstream project and foundation of this fork.
+- [whisper.cpp](https://github.com/ggml-org/whisper.cpp) — local transcription runtime, under the MIT License.
+- [Lucide](https://lucide.dev) — line icons; see the bundled icon source and dependency license notices.
+
+Cue's original credits also acknowledge `pickle-com/glass` and `sohzm/cheating-daddy`.
+
+**[GPL-3.0-or-later](LICENSE).**
