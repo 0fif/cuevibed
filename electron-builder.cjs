@@ -7,12 +7,12 @@
  *     identity reachable in the keychain (or CSC_LINK in CI), plus
  *     APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID. electron-builder
  *     signs with the hardened runtime, notarizes, and staples. The app then
- *     opens on the first double-click with no warning at all.
+ *     can pass Gatekeeper's developer and notarization checks.
  *
- *   • Ad-hoc fallback (no cert) — identity:null, so a fork or a secret-less CI
- *     run still produces a valid (not "damaged") build. It is NOT distributable:
- *     macOS refuses it after a download, and since macOS 15 the old
- *     right-click → Open escape hatch is gone.
+ *   • Ad-hoc fallback (no cert) — identity:"-" signs the assembled app without
+ *     an Apple certificate. This seals the renamed bundle correctly, but does
+ *     not establish a trusted developer identity or provide notarization.
+ *     Downloaded builds still require a Gatekeeper exception.
  */
 
 // Gated on an explicit flag rather than on CSC_LINK: a bare .p12 carries only
@@ -42,9 +42,9 @@ module.exports = {
     target: [{ target: "zip", arch: ["x64", "arm64"] }],
     category: "public.app-category.productivity",
     // With a real cert, let electron-builder discover it and apply the hardened
-    // runtime (notarization is refused without it). Without one, identity:null
-    // makes it skip signing rather than fail.
-    identity: hasCert ? undefined : null,
+    // runtime (notarization is refused without it). Without one, sign ad-hoc:
+    // skipping signing leaves Electron's original signature invalid after packaging.
+    identity: hasCert ? undefined : "-",
     hardenedRuntime: hasCert,
     gatekeeperAssess: false,
     entitlements: "build-resources/entitlements.mac.plist",
