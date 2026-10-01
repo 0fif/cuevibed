@@ -2019,25 +2019,25 @@
   const OB_STEPS = [
     {
       icon: '👋',
-      title: 'Welcome to cue',
-      body: 'cue is a private AI copilot that floats over your screen. It can see your screen, hear your meetings, and help you answer questions – while staying hidden from screen shares.'
+      title: 'Welcome to CueVibed',
+      body: 'CueVibed is your AI meeting copilot. Follow the conversation, get quick answers, and keep your notes close — with your choice of local models or AI providers.'
     },
     {
       icon: '🔐',
-      title: 'Allow cue to see & hear',
+      title: 'Allow CueVibed to see & hear',
       body: permissionHelp + '<ul><li><strong>Microphone</strong> – to hear you</li><li><strong>Screen recording</strong> – to see your screen and hear your meeting</li></ul>',
       buttons: permissionButtons
     },
     {
       icon: '⚙️',
       title: 'Connect an AI provider',
-      body: 'cue uses API keys for <span class="hl">Cerebras API</span> and options to enable real-time transcription via a local or hosted transcription model.',
-      buttons: [{ label: 'Configure cue settings', action: () => { finishOnboard(); openSettings(); } }]
+      body: 'Choose a local model server or an AI provider for answers, then configure local or hosted transcription in Settings.',
+      buttons: [{ label: 'Open Settings', action: () => { finishOnboard(); openSettings(); } }]
     },
     {
       icon: '✨',
       title: 'You’re all set',
-      body: 'How to use cue:<ul><li>' + sayShortcut + ' — <strong>What should I say?</strong> from the conversation</li><li>' + assistShortcut + ' — <strong>Smart assist</strong> with whatever\'s on screen or being said</li><li>Click <strong>Start session</strong> in the top bar to start listening to a meeting</li><li>Type a question and press <span class="kbd">↵</span></li></ul>Reopen this guide anytime by clicking the <strong>help</strong> icon in the top bar. Quit with ' + quitShortcut + '.'
+      body: 'How to use CueVibed:<ul><li>' + sayShortcut + ' — <strong>What should I say?</strong> from the conversation</li><li>' + assistShortcut + ' — <strong>Smart assist</strong> with whatever\'s on screen or being said</li><li>Click <strong>Start session</strong> in the top bar to start listening to a meeting</li><li>Type a question and press <span class="kbd">↵</span></li></ul>Reopen this guide anytime by clicking the <strong>help</strong> icon in the top bar. Quit with ' + quitShortcut + '.'
     }
   ];
   // First-run disclosure (R21 §4.3): two disclosures — cost and data path —
