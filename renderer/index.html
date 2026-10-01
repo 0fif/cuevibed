@@ -24,11 +24,11 @@
       </button>
       <div class="tb-divider"></div>
       <div class="tb-opacity-wrap">
-        <button class="tb-opacity" id="opacity-btn" title="Opacity" aria-label="Opacity" aria-expanded="false">
+        <button class="tb-opacity" id="opacity-btn" title="Background opacity" aria-label="Background opacity" aria-expanded="false">
           <span class="ic"></span>
         </button>
         <div id="opacity-popover" class="opacity-popover hidden">
-          <div class="opacity-label">Opacity</div>
+          <div class="opacity-label">Background opacity</div>
           <div class="opacity-row">
             <input type="range" id="tb-opacity-slider" min="20" max="100" step="1" value="100" />
             <span id="tb-opacity-value">100%</span>
@@ -41,6 +41,7 @@
 
     <!-- Main assistant panel -->
     <div id="panel-wrap">
+      <button id="resize-handle" aria-label="Resize window" title="Drag to resize; arrow keys also resize">◢</button>
       <span id="live-dot" class="off"></span>
       <div id="stt-status" class="stt-status stt-disconnected">Transcription off</div>
       <div id="panel" class="glass no-drag">
@@ -74,8 +75,9 @@
                 <textarea id="input" rows="1" spellcheck="false"></textarea>
               </div>
               <div id="composer-bottom">
+                <button id="auto-answer-toggle" class="smart-pill" aria-pressed="false" title="Automatically answer questions from meeting audio (Them)">Auto-answer: Off</button>
                 <button id="smart-toggle" class="smart-pill"><span class="ic"></span><span>Smart</span></button>
-                <button id="history-btn" class="history-btn" title="Show everything said this session"><span class="ic"></span><span>Transcription history</span></button>
+                <button id="history-btn" class="history-btn" title="Hide transcription history" aria-controls="transcript-sidebar" aria-expanded="true"><span class="ic"></span><span>Transcription history</span></button>
                 <button id="more-btn" class="more-btn" title="Settings"></button>
                 <div class="spacer"></div>
                 <button id="send-btn" title="Send"></button>
@@ -279,11 +281,19 @@
 
       <!-- Tab: Appearance -->
       <div class="s-body s-tab-pane hidden" data-pane="appearance">
-        <label class="s-label" for="s-opacity-slider">Opacity <span class="s-hint">how see-through the overlay is</span></label>
+        <label class="s-label" for="s-opacity-slider">Background opacity <span class="s-hint">text and controls stay readable</span></label>
         <div class="s-opacity-row">
           <input type="range" id="s-opacity-slider" min="20" max="100" step="1" value="100" />
           <span id="s-opacity-value">100%</span>
         </div>
+        <label class="s-label" for="answer-text-size">Answer text size</label>
+        <select id="answer-text-size" class="s-select">
+          <option value="small">Small</option><option value="medium" selected>Medium</option><option value="large">Large</option>
+        </select>
+        <label class="s-label" for="transcript-text-size">Transcript text size</label>
+        <select id="transcript-text-size" class="s-select">
+          <option value="small">Small</option><option value="medium" selected>Medium</option><option value="large">Large</option>
+        </select>
       </div>
 
 

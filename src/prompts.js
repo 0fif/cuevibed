@@ -27,6 +27,17 @@ const BASE_RULES =
   'Always respond in clear, natural English. Never switch to Hindi or any other language unless the user explicitly asks for it. ';
 
 const MODES = {
+  autoAnswer: {
+    needsScreen: false,
+    userBubble: 'Auto-answer',
+    small: true,
+    buildSystem(_contextBlock, aiRules) {
+      return appendAiRules('Help the user answer the other participant’s latest meeting question. Use the conversation for context. Answer directly in at most two short sentences and 40 words. If the answer is uncertain, say so. Do not invent facts or claim to have consulted sources.', aiRules);
+    },
+    build(ctx) {
+      return 'Recent conversation:\n' + formatTranscript(ctx.transcript, 16) + '\n\nQuestion to answer: ' + ctx.userText;
+    }
+  },
 
   // ── Assist: one-shot "do the smart thing" ─────────────────────────────────
   assist: {

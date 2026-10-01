@@ -155,8 +155,16 @@ const ringBuffers = {
   them: new AudioRingBuffer(300, 16000)
 };
 
+const { AutoAnswer } = require('./src/auto-answer');
+const autoAnswer = new AutoAnswer({
+  enabled: () => state.capturing && store.getSettings().autoAnswer === true,
+  busy: () => state.busy,
+  answer: (text) => runFeature('autoAnswer', text)
+});
+
 function pushTranscript(turn) {
   transcript.push(turn);
+  autoAnswer.push(turn);
   if (transcript.length > MAX_TRANSCRIPT_TURNS) transcript.splice(0, transcript.length - MAX_TRANSCRIPT_TURNS);
   if (meetingMemory) meetingMemory.onTurn(turn);
 }
@@ -254,14 +262,15 @@ const MAIN_W = 700, SIDE_W = 300;
 function saveWindowPosition() {
   if (!win || win.isDestroyed()) return;
   const [x, y] = win.getPosition();
-  store.setSettings({ windowX: x + SIDE_W, windowY: y });
+  const [windowWidth, windowHeight] = win.getSize();
+  store.setSettings({ windowX: x + SIDE_W, windowY: y, windowWidth, windowHeight });
 }
 
 function createWindow() {
   const { workArea } = screen.getPrimaryDisplay();
-  const W = SIDE_W + MAIN_W + SIDE_W, H = 600;
-
   const savedSettings = store.getSettings();
+  const W = Math.max(1200, Math.min(2400, Number(savedSettings.windowWidth) || 1300));
+  const H = Math.max(420, Math.min(workArea.height, Number(savedSettings.windowHeight) || 600));
   let startX = Math.round(workArea.x + (workArea.width - MAIN_W) / 2);
   let startY = workArea.y + 6;
 
@@ -288,6 +297,8 @@ function createWindow() {
     transparent: true,
     hasShadow: false,
     resizable: true,
+    minWidth: 1200,
+    minHeight: 420,
     skipTaskbar: true,
     alwaysOnTop: true,
     fullscreenable: false,
@@ -307,6 +318,7 @@ function createWindow() {
   }
 
   win = new BrowserWindow(winOptions);
+  win.on('resized', saveWindowPosition);
 
   // Fix 2: Only call setContentProtection if the OS supports it, and only on
   // a session where it will not blank the window out for the user themself
@@ -676,6 +688,7 @@ function routeAudio(channel, pcmBuffer) {
 // getDisplayMedia loopback for system audio) so they run inside cue's own process
 // and use cue's own Screen-Recording grant — no separate helper binary to authorize.
 async function setCapturing(active) {
+  if (!active) autoAnswer.reset();
   if (active === state.capturing) return state.capturing;
 
   if (active) {
@@ -852,6 +865,7 @@ async function runFeature(mode, userText) {
     try {
       await Promise.race([
         llm.stream({
+          ...(mode === 'autoAnswer' ? { maxTokens: 120 } : {}),
           system,
           turns: [{ role: 'user', text: built }],
           imageDataUrl,
@@ -886,6 +900,7 @@ ipcMain.handle('settings:get', () => store.redactForRenderer(store.getSettings()
 ipcMain.handle('settings:set', (_e, patch) => {
   sttDisabled = false;
   const next = store.setSettings(store.stripRendererPatch(patch));
+  if (!next.autoAnswer) autoAnswer.reset();
   // Restart slide polling with the new interval when capturing (keeps slides).
   if (state.capturing) startSlideLoop();
   return store.redactForRenderer(next);
@@ -1116,6 +1131,7 @@ ipcMain.handle('platform:info', () => ({
   winSupportsContentProtection: WIN_SUPPORTS_CONTENT_PROTECTION
 }));
 ipcMain.handle('transcript:clear', () => {
+  autoAnswer.reset();
   if (meetingMemory) meetingMemory.end().catch(() => {}); // it stays in history with its notes
   transcript.splice(0, transcript.length);
   resetSlidesSession();
@@ -1137,6 +1153,12 @@ ipcMain.handle('slides:clear', () => {
 ipcMain.on('ask', (_e, payload) => runFeature(payload.mode, payload.text));
 ipcMain.on('mic:pcm', (_e, arrayBuffer) => { if (state.capturing) routeAudio('you', arrayBuffer); });
 ipcMain.on('system:pcm', (_e, arrayBuffer) => { if (state.capturing) routeAudio('them', arrayBuffer); });
+ipcMain.on('window:resize', (_e, size) => {
+  if (!win || !Number.isFinite(size?.width) || !Number.isFinite(size?.height)) return;
+  const area = screen.getDisplayMatching(win.getBounds()).workArea;
+  win.setSize(Math.round(Math.max(1200, Math.min(2400, size.width))), Math.round(Math.max(420, Math.min(area.height, size.height))));
+});
+ipcMain.on('window:resize-end', () => saveWindowPosition());
 ipcMain.on('mouse:ignore', (_e, v) => { if (win) win.setIgnoreMouseEvents(!!v, { forward: true }); });
 // Window dragging is done here rather than with CSS drag regions, which misbehave while the
 // renderer toggles click-through. The window follows the cursor until the renderer says stop.

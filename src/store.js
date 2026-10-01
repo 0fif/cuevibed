@@ -23,6 +23,7 @@ const DEFAULTS = {
     threads: 0
   },
   smart: false,
+  autoAnswer: false,
   // Meeting (system) audio. macOS has no way to capture system audio except through
   // a ScreenCaptureKit display-capture session, and the OS then shows its
   // screen-recording indicator in the menu bar and lists cue under Control Center's
@@ -71,8 +72,10 @@ const DEFAULTS = {
   // points", "casual tone". Applied to every LLM mode EXCEPT LeetCode (kept
   // strict for coding problems).
   aiRules: '',
-  // Overlay opacity (1 = fully opaque). Clamped so the window never vanishes.
+  // Background opacity; text and controls stay readable.
   opacity: 1,
+  answerTextSize: 'medium',
+  transcriptTextSize: 'medium',
   // Slides: opt-in auto slide tracking (memory-only, forwarded, never written to disk).
   slides: {
     enabled: false,
@@ -232,6 +235,9 @@ module.exports = {
     const nextSettings = deepMerge(data, patch || {});
     nextSettings.baseUrl = normalizeBaseUrl(nextSettings.baseUrl);
     nextSettings.opacity = clampOpacity(nextSettings.opacity);
+    for (const key of ['answerTextSize', 'transcriptTextSize']) {
+      if (!['small', 'medium', 'large'].includes(nextSettings[key])) nextSettings[key] = 'medium';
+    }
     data = nextSettings;
     save();
     return data;

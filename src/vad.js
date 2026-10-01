@@ -78,10 +78,15 @@ class AdaptiveVAD {
     switch (this.state) {
       case 'silence':
         if (isSpeech) {
-          this.speechFrameCount = 1;
-          this.state = 'speech';
-          this.onSpeechStart();
-          this.onVADState('speech');
+          // Reject isolated impulses (keyboard/mouse clicks) before opening an utterance.
+          this.speechFrameCount++;
+          if (this.speechFrameCount >= this.minSpeechFrames) {
+            this.state = 'speech';
+            this.onSpeechStart();
+            this.onVADState('speech');
+          }
+        } else {
+          this.speechFrameCount = 0;
         }
         break;
 

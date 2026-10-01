@@ -54,6 +54,24 @@
   const MAX_RESPONSES = 20;
 
   const messages = $('#messages');
+  let followMessages = true;
+  let messageScrollFrame = null;
+  messages.addEventListener('scroll', () => {
+    followMessages = messages.scrollHeight - messages.clientHeight - messages.scrollTop <= 32;
+  }, { passive: true });
+  function followConversation() {
+    if (messageScrollFrame !== null) return;
+    messageScrollFrame = requestAnimationFrame(() => {
+      messageScrollFrame = null;
+      // Only move this pane, never the window or its toolbar. Recheck here so
+      // scrolling up while a token is arriving takes precedence.
+      if (followMessages) messages.scrollTop = messages.scrollHeight;
+    });
+  }
+  // Covers streaming tokens, final Markdown layout, and restored messages.
+  new MutationObserver(followConversation).observe(messages, { childList: true, subtree: true, characterData: true });
+  // Keep the bottom visible when resizing or when the composer grows.
+  new ResizeObserver(followConversation).observe(messages);
 
   function esc(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
@@ -81,7 +99,7 @@
     return html;
   }
 
-  function clearMessages() { messages.innerHTML = ''; aiEl = null; caretEl = null; }
+  function clearMessages() { followMessages = true; messages.innerHTML = ''; aiEl = null; caretEl = null; }
 
   function addUserBubble(text) {
     const b = document.createElement('div');
@@ -578,6 +596,27 @@
     return Math.min(1, Math.max(OPACITY_MIN, Math.round(n * 100) / 100));
   }
   function opacityToPercent(value) { return Math.round(clampOpacity(value) * 100); }
+  function applyTextSizes() {
+    const sizes = [
+      ['answerTextSize', 'answer-text-size', '--answer-size', { small: 17, medium: 20, large: 24 }],
+      ['transcriptTextSize', 'transcript-text-size', '--transcript-size', { small: 11, medium: 12.5, large: 16 }]
+    ];
+    for (const [key, id, variable, values] of sizes) {
+      const size = Object.hasOwn(values, settings?.[key]) ? settings[key] : 'medium';
+      document.documentElement.style.setProperty(variable, values[size] + 'px');
+      $('#' + id).value = size;
+    }
+    followConversation();
+  }
+  for (const [id, key] of [['answer-text-size', 'answerTextSize'], ['transcript-text-size', 'transcriptTextSize']]) {
+    $('#' + id).addEventListener('change', async (event) => {
+      if (!settings) return;
+      settings[key] = event.target.value;
+      applyTextSizes();
+      try { await cue.settingsSet({ [key]: settings[key] }); }
+      catch (error) { showStatus('Could not save text size: ' + error.message); }
+    });
+  }
   function persistOpacitySoon() {
     clearTimeout(persistOpacitySoon.timer);
     persistOpacitySoon.timer = setTimeout(() => {
@@ -671,7 +710,7 @@
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
-          autoGainControl: true,
+          autoGainControl: false,
           channelCount: 1,
           sampleRate: 16000
         }
@@ -885,7 +924,7 @@
     else if (active === true) setSttState(streaming ? 'connecting' : 'batch');
   }
 
-  // ---- transcript history sidebar (hidden by default, manual toggle) ----
+  // ---- transcript history sidebar (open by default, manual toggle) ----
   let tsSidebarInterimEl = null;
   let sidebarOpen = false;
   // Track last committed row per channel — all chunks from same speaker go in one row
@@ -918,7 +957,11 @@
       placeSidebar(sidebar);
       sidebar.classList.add('open');
     }
-    if (historyBtn) historyBtn.classList.add('active');
+    if (historyBtn) {
+      historyBtn.classList.add('active');
+      historyBtn.setAttribute('aria-expanded', 'true');
+      historyBtn.title = 'Hide transcription history';
+    }
     sidebarOpen = true;
   }
 
@@ -926,7 +969,11 @@
     const sidebar = document.getElementById('transcript-sidebar');
     const historyBtn = document.getElementById('history-btn');
     if (sidebar) sidebar.classList.remove('open');
-    if (historyBtn) historyBtn.classList.remove('active');
+    if (historyBtn) {
+      historyBtn.classList.remove('active');
+      historyBtn.setAttribute('aria-expanded', 'false');
+      historyBtn.title = 'Show transcription history';
+    }
     sidebarOpen = false;
   }
 
@@ -957,6 +1004,7 @@
   if (closeSidebarBtn) {
     closeSidebarBtn.addEventListener('click', hideSidebar);
   }
+  showSidebar();
 
   function appendTranscriptHistoryTurn(channel, text, isInterim) {
     const list = document.getElementById('ts-list');
@@ -1181,18 +1229,6 @@
     aiEl.appendChild(caretEl);
     group.appendChild(aiEl);
     messages.appendChild(group);
-    // Use requestAnimationFrame so the DOM is fully updated before scrolling.
-    // Scroll #messages directly rather than calling sep.scrollIntoView(): that
-    // scrolls *every* scrollable ancestor, and once the panel is tall enough it
-    // scrolls the document too, aligning the separator to the top of the window
-    // and pushing #toolbar out of view. html/body are overflow:hidden, so there
-    // is no scrollbar or wheel gesture to undo it — the Stop/Hide/Quit controls
-    // just never come back.
-    requestAnimationFrame(() => {
-      if (sep && sep.isConnected) {
-        messages.scrollTo({ top: sep.offsetTop - messages.offsetTop, behavior: 'smooth' });
-      }
-    });
     setBusy(true);
   });
   cue.on('llm:token', ({ text }) => appendToken(text));
@@ -1506,6 +1542,7 @@
     updateAiRulesCounter();
     // Appearance tab
     applyOpacity(settings.opacity, false);
+    applyTextSizes();
   }
 
   // Whoever cue has been told it may answer questions for. Empty is the normal
@@ -1814,10 +1851,48 @@
   // ---- click-through: only the UI blocks the mouse; empty gaps pass to your screen ----
   let ignoring = null;
   let draggingWindow = false;
+  let resizingWindow = false;
+  let resizeOrigin;
+  const resizeHandle = $('#resize-handle');
+  resizeHandle.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    resizingWindow = true;
+    setIgnore(false);
+    resizeOrigin = { x: e.screenX, y: e.screenY, width: window.outerWidth, height: window.outerHeight };
+    resizeHandle.setPointerCapture(e.pointerId);
+  });
+  resizeHandle.addEventListener('pointermove', (e) => {
+    if (!resizingWindow) return;
+    cue.windowResize({ width: resizeOrigin.width + e.screenX - resizeOrigin.x, height: resizeOrigin.height + e.screenY - resizeOrigin.y });
+  });
+  resizeHandle.addEventListener('lostpointercapture', () => {
+    resizingWindow = false;
+    cue.windowResizeEnd();
+  });
+  resizeHandle.addEventListener('keydown', (e) => {
+    const steps = { ArrowRight: [40, 0], ArrowLeft: [-40, 0], ArrowDown: [0, 40], ArrowUp: [0, -40] };
+    if (!steps[e.key]) return;
+    e.preventDefault();
+    const [dx, dy] = steps[e.key];
+    cue.windowResize({ width: window.outerWidth + dx, height: window.outerHeight + dy });
+    cue.windowResizeEnd();
+  });
+  function showAutoAnswer() {
+    const button = $('#auto-answer-toggle');
+    button.textContent = 'Auto-answer: ' + (settings.autoAnswer ? 'On' : 'Off');
+    button.setAttribute('aria-pressed', String(!!settings.autoAnswer));
+  }
+  $('#auto-answer-toggle').addEventListener('click', async () => {
+    try {
+      settings = await cue.settingsSet({ autoAnswer: !settings.autoAnswer });
+      showAutoAnswer();
+    } catch (error) { cue.log('Could not save auto-answer: ' + error.message); }
+  });
   function setIgnore(v) { if (v !== ignoring) { ignoring = v; cue.setIgnoreMouse(v); } }
   document.addEventListener('mousemove', (e) => {
     // The window trails the cursor while dragging; going click-through then would drop the release.
-    if (draggingWindow) return;
+    if (draggingWindow || resizingWindow) return;
     const el = document.elementFromPoint(e.clientX, e.clientY);
     const overUI = !!(el && el.closest && el.closest('#toolbar, #panel-wrap, #transcript-sidebar, #settings-scrim, #onboard-scrim, #consent-scrim'));
     setIgnore(!overUI);
@@ -2037,6 +2112,7 @@
   // ---- boot --------------------------------------------------------------
   (async function boot() {
     settings = await cue.settingsGet();
+    showAutoAnswer();
     const platformInfo = await cue.platformInfo();
     publikState = await cue.publikState();
     // A build with no app token never shows the option, and keeps the BYO
@@ -2082,6 +2158,7 @@
     }
 
     applyOpacity(settings.opacity, false);
+    applyTextSizes();
 
     const st = await cue.captureState();
     $('#live-dot').classList.toggle('off', !st.active);

@@ -29,7 +29,10 @@ test('includes pre-roll and emits after the configured trailing silence', () => 
   pushFrames(segmenter, 0, 18);
 
   assert.equal(utterances.length, 1);
-  assert.ok(utterances[0].length >= FRAME_BYTES * 30);
+  // Confirmed onset uses some of the pre-roll; all eight speech frames survive.
+  const samples = [];
+  for (let i = 0; i < utterances[0].length; i += 2) samples.push(utterances[0].readInt16LE(i));
+  assert.equal(samples.filter(value => value === 1200).length, FRAME_SAMPLES * 8);
   assert.deepEqual(speechStates, [true, false]);
 });
 
@@ -62,4 +65,27 @@ test('splits long speech into bounded segments with overlap', () => {
   assert.equal(utterances[0].length, FRAME_BYTES * 10);
   assert.equal(utterances[1].length, FRAME_BYTES * 10);
   assert.ok(utterances.every((pcm) => pcm.length <= FRAME_BYTES * 10));
+});
+
+
+test('isolated keyboard-like impulses do not open or emit an utterance', () => {
+  const utterances = [];
+  const segmenter = new UtteranceSegmenter({ channel: 'you', onUtterance: (_, pcm) => utterances.push(pcm) });
+  for (let i = 0; i < 20; i++) {
+    pushFrames(segmenter, 8000, 1);
+    pushFrames(segmenter, 0, 5);
+  }
+  segmenter.stop();
+  assert.equal(utterances.length, 0);
+});
+
+test('a click followed later by speech does not merge into an endless utterance', () => {
+  const utterances = [];
+  const segmenter = new UtteranceSegmenter({ channel: 'you', onUtterance: (_, pcm) => utterances.push(pcm) });
+  pushFrames(segmenter, 8000, 1);
+  pushFrames(segmenter, 0, 40);
+  pushFrames(segmenter, 1200, 8);
+  pushFrames(segmenter, 0, 20);
+  assert.equal(utterances.length, 1);
+  assert.ok(utterances[0].length < FRAME_BYTES * 35);
 });

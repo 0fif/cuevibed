@@ -19,6 +19,14 @@ A fork of [Cue](https://github.com/Blueturboguy07/cue), focused on macOS with Ap
 
 ## What it does
 
+### CueVibed additions
+
+- **Resize the overlay:** drag the bottom-right corner handle, or focus it and use the arrow keys. The answer area expands with the window, and its dimensions are saved.
+- **Auto-answer:** enable **Auto-answer** beside the composer to respond to questions from the **Them** channel. Turn on **Settings → Audio → Meeting audio**, save, and start a session first. Detection uses English question/request patterns, waits briefly for transcript continuation, and suppresses duplicate triggers. Auto-answer is off by default and only responds to call audio, never your microphone.
+- **Microphone noise handling:** microphone noise suppression and echo cancellation remain enabled; automatic gain is disabled. Speech detection requires sustained energy before opening an utterance, reducing isolated keyboard/mouse clicks. This is not a speech classifier and may still admit sustained noise or miss very brief speech.
+
+For development, run `npm install`, prepare the local Whisper runtime with `npm run prepare:whisper`, then run `npm start`. Quit the installed Cue app first to avoid competing shortcuts and microphone sessions. These source changes do not update an existing app in Applications.
+
 cue floats a small glass panel on top of everything. It takes **three separate inputs** — your **screen**, your **microphone**, and your **meeting audio** (what the other person says) — and uses an AI model to help you in real time.
 
 | Feature | How to trigger | What it uses |
