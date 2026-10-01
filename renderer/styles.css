@@ -654,11 +654,17 @@ button:focus { outline: none; }
 /* ============================ Onboarding / tutorial ============================ */
 #onboard-scrim { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; background: rgba(0,0,0,0.45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); border-radius: var(--r-panel); overflow: hidden; }
 #onboard-scrim.hidden { display: none; }
-#onboard { width: min(470px, 93vw); padding: 26px 28px 18px; text-align: center; animation: overlayIn 240ms cubic-bezier(0.22,1,0.36,1); }
+#onboard { width: min(470px, 93vw); padding: 26px 28px 18px; text-align: center; }
 .ob-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
 .ob-dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.20); transition: all 220ms ease; }
 .ob-dots span.on { background: var(--accent); width: 20px; border-radius: 4px; }
 .ob-icon { display: flex; justify-content: center; margin-bottom: 14px; font-size: 34px; line-height: 1; }
+.ob-symbol { display: inline-flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 16px; background: rgba(0,122,255,0.12); color: #409cff; }
+.mic-perm-heading { display: inline-flex; align-items: center; gap: 6px; }
+.mic-perm-heading > span { display: inline-flex; color: #409cff; }
+.ob-avatar { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; display: grid; place-items: center; position: relative; }
+/* Crop the gray square outside the photo's existing white circle. */
+.ob-avatar img { position: absolute; width: 120%; height: 120%; max-width: none; object-fit: cover; }
 .ob-title { font-size: 20px; font-weight: 700; color: var(--tx-1); margin-bottom: 10px; letter-spacing: -0.01em; }
 .ob-body { font-size: 14px; line-height: 1.6; color: var(--tx-2); text-align: left; -webkit-user-select: text; user-select: text; }
 .ob-body strong { color: #fff; font-weight: 600; }
@@ -924,7 +930,7 @@ button:focus { outline: none; }
 /* Match the resizable main column, including its reserved sidebar space. */
 #settings-scrim { width: calc(100vw - 2 * var(--side-w)); }
 #consent-scrim.hidden { display: none; }
-#consent { width: min(430px, 92vw); padding: 24px 26px 16px; text-align: center; animation: overlayIn 240ms cubic-bezier(0.22,1,0.36,1); }
+#consent { width: min(430px, 92vw); padding: 24px 26px 16px; text-align: center; }
 .cs-title { font-size: 15px; font-weight: 620; color: var(--tx-1); line-height: 1.35; }
 .cs-body { margin-top: 10px; color: var(--tx-mut); font-size: 12.5px; line-height: 1.5; white-space: pre-line; }
 .cs-actions { display: flex; gap: 10px; justify-content: center; margin-top: 18px; }

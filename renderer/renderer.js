@@ -19,6 +19,8 @@
   $('.tb-hide .chev').innerHTML = icon('chevron-down', { size: 14 });
   $('#opacity-btn .ic').innerHTML = icon('eclipse', { size: 14 });
   $('#quit-btn').innerHTML = icon('x', { size: 14 });
+  $('#close-sidebar-btn').innerHTML = icon('x', { size: 14 });
+  $('#close-sidebar-btn').setAttribute('aria-label', 'Close history');
   document.querySelector('.act[data-mode="assist"] .ic').innerHTML = icon('monitor', { size: 16 });
   document.querySelector('.act[data-mode="say"] .ic').innerHTML = icon('wand-sparkles', { size: 16 });
   document.querySelector('.act[data-mode="recap"] .ic').innerHTML = icon('refresh-cw', { size: 16 });
@@ -1357,7 +1359,7 @@
     banner.className = 'show';
     banner.innerHTML =
       '<div class="mic-perm-text">' +
-        '<strong>🎙️ Microphone access required</strong><br>' +
+        '<strong class="mic-perm-heading"><span aria-hidden="true">' + icon('mic', { size: 16 }) + '</span>Microphone access required</strong><br>' +
         'cue needs microphone permission to hear you during calls. Grant access in System Settings, then restart cue.' +
       '</div>' +
       '<div class="mic-perm-actions"></div>';
@@ -2018,24 +2020,24 @@
   const quitShortcut = isWindows ? '<span class="kbd">Ctrl</span><span class="kbd">⇧</span><span class="kbd">X</span>' : '<span class="kbd">⌘</span><span class="kbd">⇧</span><span class="kbd">X</span>';
   const OB_STEPS = [
     {
-      icon: '👋',
+      avatar: 'welcome-avatar.png',
       title: 'Welcome to CueVibed',
       body: 'CueVibed is your AI meeting copilot. Follow the conversation, get quick answers, and keep your notes close — with your choice of local models or AI providers.'
     },
     {
-      icon: '🔐',
+      icon: 'lock',
       title: 'Allow CueVibed to see & hear',
       body: permissionHelp + '<ul><li><strong>Microphone</strong> – to hear you</li><li><strong>Screen recording</strong> – to see your screen and hear your meeting</li></ul>',
       buttons: permissionButtons
     },
     {
-      icon: '⚙️',
+      icon: 'settings',
       title: 'Connect an AI provider',
       body: 'Choose a local model server or an AI provider for answers, then configure local or hosted transcription in Settings.',
       buttons: [{ label: 'Open Settings', action: () => { finishOnboard(); openSettings(); } }]
     },
     {
-      icon: '✨',
+      icon: 'wand-sparkles',
       title: 'You’re all set',
       body: 'How to use CueVibed:<ul><li>' + sayShortcut + ' — <strong>What should I say?</strong> from the conversation</li><li>' + assistShortcut + ' — <strong>Smart assist</strong> with whatever\'s on screen or being said</li><li>Click <strong>Start session</strong> in the top bar to start listening to a meeting</li><li>Type a question and press <span class="kbd">↵</span></li></ul>Reopen this guide anytime by clicking the <strong>help</strong> icon in the top bar. Quit with ' + quitShortcut + '.'
     }
@@ -2046,7 +2048,7 @@
   function publikStep() {
     const c = publikState.copy.disclosure;
     return {
-      icon: '🪙',
+      icon: 'credit-card',
       title: c.title,
       body: () => `${esc(c.intro)}<br><br><strong>Cost.</strong> ${esc(c.cost)}<br><br><strong>Where your prompts go.</strong> ${esc(c.dataPath)}` +
         `<span class="ob-fine">${esc(c.terms)} <a id="ob-publik-terms">publik API terms</a></span>`,
@@ -2083,7 +2085,7 @@
     }
     buttons.push({ label: card.secondary.label, action: done });
     return {
-      icon: '✅',
+      icon: 'circle-check',
       title: card.title,
       body: () => `<div class="publik-card-balance">${esc(card.balance)}</div><div class="publik-card-why">${esc(card.why)}</div>`,
       buttons,
@@ -2126,7 +2128,23 @@
   let obIndex = 0;
   function renderOnboard() {
     const step = OB_STEPS[obIndex];
-    $('#ob-icon').textContent = step.icon;
+    $('#ob-icon').replaceChildren();
+    if (step.icon) {
+      const badge = document.createElement('span');
+      badge.className = 'ob-symbol';
+      badge.setAttribute('aria-hidden', 'true');
+      badge.innerHTML = icon(step.icon, { size: 30, stroke: 1.7 });
+      $('#ob-icon').appendChild(badge);
+    }
+    if (step.avatar) {
+      const frame = document.createElement('span');
+      frame.className = 'ob-avatar';
+      const photo = document.createElement('img');
+      photo.src = step.avatar;
+      photo.alt = 'CueVibed welcome avatar';
+      frame.appendChild(photo);
+      $('#ob-icon').replaceChildren(frame);
+    }
     $('#ob-title').textContent = step.title;
     $('#ob-body').innerHTML = typeof step.body === 'function' ? step.body() : step.body;
     const termsLink = $('#ob-publik-terms');

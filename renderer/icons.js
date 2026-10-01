@@ -2,6 +2,10 @@
 // icon(name, {size, stroke, fill}) -> SVG markup string.
 (function () {
   const P = {
+    lock: '<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4"/><path d="M12 14v3"/>',
+    'credit-card': '<rect x="2" y="4" width="20" height="16" rx="3"/><path d="M2 10h20M6 15h3"/>',
+    'circle-check': '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+    mic: '<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/>',
     plug: '<path d="M8 3v5m8-5v5M6 8h12v4a6 6 0 0 1-12 0V8zm6 10v4"/>',
     'volume-2': '<path d="M11 4 6 8H3v8h3l5 4V4zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
     palette: '<circle cx="12" cy="12" r="9"/><circle cx="8" cy="9" r="1"/><circle cx="13" cy="7" r="1"/><circle cx="17" cy="11" r="1"/><path d="M7 16h7"/>',

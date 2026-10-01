@@ -45,7 +45,7 @@
     }
     .no-drag { -webkit-app-region: no-drag; }
 
-    .perm-icon { font-size: 40px; line-height: 1; margin-bottom: 16px; }
+    .perm-icon { display: inline-flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 16px; background: rgba(0,122,255,0.12); color: #409cff; margin-bottom: 16px; }
     .perm-title { font-size: 22px; font-weight: 700; color: var(--tx-1); letter-spacing: -0.02em; margin-bottom: 8px; }
     .perm-desc { font-size: 14px; line-height: 1.6; color: var(--tx-2); margin-bottom: 24px; text-align: center; }
     .perm-desc strong { color: #fff; }
@@ -71,7 +71,7 @@
       border-color: rgba(255,100,70,0.30);
       background: rgba(255,100,70,0.05);
     }
-    .perm-emoji { font-size: 22px; flex-shrink: 0; }
+    .perm-symbol { display: inline-flex; color: #409cff; flex-shrink: 0; }
     .perm-info { flex: 1; min-width: 0; }
     .perm-name { font-size: 14px; font-weight: 600; color: var(--tx-1); }
     .perm-status { font-size: 12px; color: var(--tx-mut); margin-top: 2px; }
@@ -178,13 +178,12 @@
       from { opacity: 0; transform: translateY(-6px) scale(0.98); }
       to { opacity: 1; transform: none; }
     }
-    .perm-card { animation: fadeIn 280ms cubic-bezier(0.22,1,0.36,1); }
   </style>
 </head>
 <body>
   <div id="perm-root">
     <div class="perm-card">
-      <div class="perm-icon">🔐</div>
+      <div class="perm-icon" data-symbol="lock" aria-hidden="true"></div>
       <div class="perm-title">cue needs your permission</div>
       <div class="perm-desc">
         Grant <strong>Microphone</strong> and <strong>Screen Recording</strong> access so cue can hear your meetings and see your screen.
@@ -192,7 +191,7 @@
 
       <!-- Microphone -->
       <div class="perm-row no-drag" id="row-mic">
-        <span class="perm-emoji">🎙️</span>
+        <span class="perm-symbol" data-symbol="mic" aria-hidden="true"></span>
         <div class="perm-info">
           <div class="perm-name">Microphone</div>
           <div class="perm-status" id="status-mic">Checking…</div>
@@ -203,7 +202,7 @@
 
       <!-- Screen Recording -->
       <div class="perm-row no-drag" id="row-screen">
-        <span class="perm-emoji">🖥️</span>
+        <span class="perm-symbol" data-symbol="monitor" aria-hidden="true"></span>
         <div class="perm-info">
           <div class="perm-name">Screen Recording</div>
           <div class="perm-status" id="status-screen">Checking…</div>
@@ -226,7 +225,11 @@
     </div>
   </div>
 
+  <script src="icons.js"></script>
   <script>
+    document.querySelectorAll('[data-symbol]').forEach(el => {
+      el.innerHTML = window.ICONS.icon(el.dataset.symbol, { size: el.classList.contains('perm-icon') ? 30 : 22, stroke: 1.7 });
+    });
     (function () {
       const cue = window.cue;
 
