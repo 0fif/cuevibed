@@ -25,6 +25,8 @@ You can run both transcription and answers on your Mac, or choose a hosted provi
 
 CueVibed is a free, open-source AI meeting assistant for Apple Silicon Macs. If you're looking for a Cluely replacement, a Pluely alternative, or a macOS-focused fork of Cue, it provides live transcription, suggested responses during calls, screen-aware assistance, and conversation recaps in a resizable desktop overlay.
 
+**No app feature paywalls.** You do not need a subscription or a Pro upgrade to resize the window, make the text bigger, read the full reply, or open transcript history. Auto-answer, appearance controls, and local model connections are included too. Being able to read your meeting assistant should not be a paid feature.
+
 Use local Whisper for speech-to-text and a local model server such as oMLX or Ollama for answers, or connect your own supported cloud provider. The app does not require a CueVibed subscription; hosted AI providers may charge for usage. Running locally requires enough memory for your chosen models.
 
 CueVibed is an independent fork of Cue, not affiliated with Cluely or Pluely. It is an alternative for these meeting-assistant workflows, not a feature-for-feature replacement. See the setup instructions and limitations below before switching.
