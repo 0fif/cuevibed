@@ -46,7 +46,7 @@ test.after(() => {
 function fakeContext(nodeName, archName) {
   const archNumber = Number(Object.keys(Arch).find((key) => Arch[key] === archName));
   return {
-    packager: { platform: { nodeName } },
+    packager: { platform: { nodeName }, appInfo: { productFilename: 'CueVibed' } },
     arch: archNumber,
     appOutDir: path.join('fake', 'appOutDir')
   };
@@ -66,6 +66,7 @@ test('bundles the checksum-verified archive runtime by default on win32-x64', as
   assert.equal(capturedPrepareCalls.length, 1);
   assert.equal(capturedPrepareCalls[0].platform, 'win32');
   assert.equal(capturedPrepareCalls[0].architecture, 'x64');
+  assert.equal(capturedPrepareCalls[0].outputDirectory, path.join('fake', 'appOutDir', 'resources', 'whisper-runtime'));
 });
 
 test('bundles the checksum-verified archive runtime by default on linux-x64', async () => {
@@ -82,6 +83,7 @@ test('CUE_BUNDLE_WHISPER=1 still opts macOS in explicitly', async () => {
   process.env.CUE_BUNDLE_WHISPER = '1';
   await afterPack(fakeContext('darwin', 'x64'));
   assert.equal(capturedPrepareCalls.length, 1);
+  assert.equal(capturedPrepareCalls[0].outputDirectory, path.join('fake', 'appOutDir', 'CueVibed.app', 'Contents', 'Resources', 'whisper-runtime'));
 });
 
 test('CUE_BUNDLE_WHISPER=0 still opts win32 out explicitly (fast local pack)', async () => {

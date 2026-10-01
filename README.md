@@ -70,7 +70,7 @@ CueVibed supports **macOS on Apple Silicon**. **Windows is not supported, and th
 
 ### Download a packaged app
 
-Check this fork's [Releases](../../releases) for an Apple Silicon macOS build. If one is available, download the `mac-arm64.zip`, unzip it, and move `cue.app` into Applications. If there is no suitable release, use the source instructions below. Upstream Cue releases do not include CueVibed's changes.
+Check this fork's [Releases](../../releases) for an Apple Silicon macOS build. If one is available, download the `mac-arm64.zip`, unzip it, and move `CueVibed.app` into Applications. If there is no suitable release, use the source instructions below. Upstream Cue releases do not include CueVibed's changes.
 
 ### From source
 
@@ -103,7 +103,7 @@ The app lists **macOS 14.4+** as the requirement for meeting-audio capture. Scre
 | Screen-aware assistance | Grant Screen Recording access; choose a vision-capable chat model |
 | Screen-share exclusion | Best effort; test your actual sharing setup |
 
-Open **System Settings → Privacy & Security → Microphone** and **Screen Recording** (the wording can include system audio on newer macOS versions). Enable the running app, which may still appear as **cue** or **Electron**, and quit/reopen if requested. Permissions granted to an installed build may not apply to a development build.
+Open **System Settings → Privacy & Security → Microphone** and **Screen Recording** (the wording can include system audio on newer macOS versions). Enable the running app, which appears as **CueVibed** in packaged builds or may appear as **Electron** during development, and quit/reopen if requested. Permissions granted to an installed build may not apply to a development build.
 
 ### Build an app
 
@@ -115,7 +115,7 @@ For an unpacked development app, use `CUE_BUNDLE_WHISPER=1 npm run pack`. To che
 
 Build output goes into `dist/`. `CUE_BUNDLE_WHISPER=1` prepares and bundles the local Whisper runtime; macOS builds skip it without that flag. Signing and notarization depend on your build configuration; rebuilding may require granting macOS permissions again.
 
-Some app names and storage paths still say `cue`. CueVibed shares Cue’s app identifier and data directory. Installing both does not give you separate settings or meeting histories.
+CueVibed uses its own app identifier (`com.cuevibed.app`) and data folder (`~/Library/Application Support/CueVibed`). On first launch it copies existing Cue settings, meeting history, and downloaded Whisper models into that folder. It keeps the originals and does not overwrite existing CueVibed data. Later changes stay separate. Quit Cue before launching CueVibed so the imported data is up to date.
 
 ## Set up your first meeting
 
@@ -341,7 +341,7 @@ Check the window-filtering option described above, make sure you did not start w
 
 **macOS says the downloaded app is damaged or cannot be opened**
 
-Use a verified release from this repository or build from source. macOS can reject builds with invalid signing or notarization. For a trusted build affected by quarantine, `xattr -cr /Applications/cue.app` clears quarantine and other extended attributes. It does not repair a corrupted or incorrectly signed app; verify the download first.
+Use a verified release from this repository or build from source. macOS can reject builds with invalid signing or notarization. For a trusted build affected by quarantine, `xattr -cr /Applications/CueVibed.app` clears quarantine and other extended attributes. It does not repair a corrupted or incorrectly signed app; verify the download first.
 
 **I want to take a screenshot of CueVibed**
 

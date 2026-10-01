@@ -11,7 +11,7 @@
   // Exiting must work before settings or provider setup has completed.
   const quitButton = $('#quit-btn');
   quitButton.addEventListener('click', () => cue.quit());
-  quitButton.title = isMac ? 'Quit cue (⌘⇧X)' : 'Quit cue (Ctrl+Shift+X)';
+  quitButton.title = isMac ? 'Quit CueVibed (⌘⇧X)' : 'Quit CueVibed (Ctrl+Shift+X)';
 
   // ---- paint icons -------------------------------------------------------
   $('#logo-btn').innerHTML = icon('badge-question-mark', { size: 16 });
@@ -801,8 +801,8 @@
         showStatus('No microphone was found. Plug one in, or pick a default input device in your OS sound settings, then try again.');
       } else if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
         showStatus(isWindows
-          ? 'Microphone permission was denied. Settings → Privacy & security → Microphone → allow cue, then try again.'
-          : 'Microphone permission was denied. System Settings → Privacy & Security → Microphone → allow cue, then try again.');
+          ? 'Microphone permission was denied. Settings → Privacy & security → Microphone → allow CueVibed, then try again.'
+          : 'Microphone permission was denied. System Settings → Privacy & Security → Microphone → allow CueVibed, then try again.');
       } else if (name === 'NotReadableError' || name === 'TrackStartError') {
         showStatus('The microphone could not be started — another application may be using it exclusively. Close other apps using the mic and try again.');
       } else {
@@ -1360,7 +1360,7 @@
     banner.innerHTML =
       '<div class="mic-perm-text">' +
         '<strong class="mic-perm-heading"><span aria-hidden="true">' + icon('mic', { size: 16 }) + '</span>Microphone access required</strong><br>' +
-        'cue needs microphone permission to hear you during calls. Grant access in System Settings, then restart cue.' +
+        'CueVibed needs microphone permission to hear you during calls. Grant access in System Settings, then restart cue.' +
       '</div>' +
       '<div class="mic-perm-actions"></div>';
     const actions = banner.querySelector('.mic-perm-actions');
@@ -2004,8 +2004,8 @@
   // ---- onboarding / first-run tutorial -----------------------------------
   const obScrim = $('#onboard-scrim');
   const permissionHelp = isWindows
-    ? 'cue needs permission to see and hear. Open Windows Privacy & security settings, allow <strong>Microphone</strong> and <strong>Screen recording</strong> for cue, then come back here.'
-    : 'cue needs two macOS permissions. Click each button, turn <strong>cue</strong> ON in the window that opens, then come back here.';
+    ? 'CueVibed needs permission to see and hear. Open Windows Privacy & security settings, allow <strong>Microphone</strong> and <strong>Screen recording</strong> for CueVibed, then come back here.'
+    : 'CueVibed needs two macOS permissions. Click each button, turn <strong>CueVibed</strong> ON in the window that opens, then come back here.';
   const permissionButtons = isWindows
     ? [
         { label: 'Open Microphone settings', action: () => cue.openPane('ms-settings:privacy-microphone') },
@@ -2210,7 +2210,7 @@
       // Windows 10: update the onboarding screen recording button to be more helpful
       const ob = OB_STEPS[1];
       ob.buttons = ob.buttons.filter((b) => !b.label.toLowerCase().includes('screen'));
-      ob.body = 'cue needs microphone permission to hear you. Click the button below to open Windows microphone settings and allow cue.<br><br><strong>Screen capture works automatically on Windows 10</strong> — no additional permission needed.<ul><li><strong>Microphone</strong> — to hear you</li><li><strong>Screen recording</strong> — works automatically on Windows 10</li></ul>';
+      ob.body = 'CueVibed needs microphone permission to hear you. Click the button below to open Windows microphone settings and allow CueVibed.<br><br><strong>Screen capture works automatically on Windows 10</strong> — no additional permission needed.<ul><li><strong>Microphone</strong> — to hear you</li><li><strong>Screen recording</strong> — works automatically on Windows 10</li></ul>';
     }
 
     smartBtn.classList.toggle('on', !!settings.smart);

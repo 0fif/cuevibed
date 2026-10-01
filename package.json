@@ -1,14 +1,13 @@
 {
-  "name": "cue",
+  "name": "cuevibed",
   "version": "0.2.4",
-  "description": "Open-source cross-platform invisible AI overlay — three separate inputs (screen, mic, system audio) into an LLM. A Cluely-style copilot for meetings and coding problems.",
+  "description": "AI meeting copilot for macOS with live transcription, automatic answers, and local model support.",
   "license": "GPL-3.0-or-later",
-  "author": "cue",
+  "author": "CueVibed contributors",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "test": "node --test test/*.test.js",
-    "postinstall": "node scripts/rename-electron.js",
     "prepare:whisper": "node scripts/prepare-whisper-runtime.js",
     "verify:whisper-runtime": "node scripts/verify-whisper-runtime.js",
     "pack": "electron-builder --dir",
@@ -23,11 +22,10 @@
   },
   "keywords": [
     "electron",
-    "overlay",
-    "ai",
-    "assistant",
-    "windows",
-    "cross-platform"
+    "macos",
+    "meeting",
+    "transcription",
+    "local-ai"
   ],
   "devDependencies": {
     "electron": "^33.2.1",

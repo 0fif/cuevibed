@@ -97,9 +97,9 @@ function startAppLink(deps) {
   if (link) return link;
 
   link = new AppLinkServer({
-    appId: 'com.cue.overlay', // Matches electron-builder.cjs. Read off a build, not guessed.
-    appSlug: 'cue',
-    appName: 'cue',
+    appId: 'com.cuevibed.app', // Matches electron-builder.cjs. Read off a build, not guessed.
+    appSlug: 'cuevibed',
+    appName: 'CueVibed',
     appVersion: app.getVersion(),
     stateProvider: () => describeState(deps.snapshot()),
     onConsentRequest: (request) => requestConsent(request, deps),

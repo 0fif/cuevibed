@@ -34,6 +34,9 @@ module.exports = async function afterPack(context) {
     return;
   }
 
-  const outputDirectory = path.join(context.appOutDir, 'resources', 'whisper-runtime');
+  const resourcesDirectory = platform === 'darwin'
+    ? path.join(context.appOutDir, `${context.packager.appInfo.productFilename}.app`, 'Contents', 'Resources')
+    : path.join(context.appOutDir, 'resources');
+  const outputDirectory = path.join(resourcesDirectory, 'whisper-runtime');
   await prepareWhisperRuntime({ platform, architecture, outputDirectory });
 };

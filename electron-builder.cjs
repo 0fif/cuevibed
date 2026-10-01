@@ -27,8 +27,8 @@ const canNotarize =
 
 /** @type {import('electron-builder').Configuration} */
 module.exports = {
-  appId: "com.cue.overlay",
-  productName: "cue",
+  appId: "com.cuevibed.app",
+  productName: "CueVibed",
   asar: false,
   publish: null,
   artifactName: "${productName}-${version}-${os}-${arch}.${ext}",
@@ -55,10 +55,10 @@ module.exports = {
     extendInfo: {
       LSUIElement: true,
       NSMicrophoneUsageDescription:
-        "cue transcribes your microphone so it can help you in conversations.",
-      NSCameraUsageDescription: "cue does not use the camera.",
+        "CueVibed transcribes your microphone so it can help you in conversations.",
+      NSCameraUsageDescription: "CueVibed does not use the camera.",
       NSAudioCaptureUsageDescription:
-        "cue captures system audio to transcribe the other participant in a call.",
+        "CueVibed captures system audio to transcribe the other participant in a call.",
     },
   },
   win: {

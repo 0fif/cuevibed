@@ -1,6 +1,17 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, screen, session, desktopCapturer, shell, dialog, systemPreferences } = require('electron');
 const path = require('path');
 const os = require('os');
+// Set the identity and data path before loading any settings or starting Chromium.
+const originalUserData = app.getPath('userData');
+const appData = app.getPath('appData');
+app.setName('CueVibed');
+const standardPaths = ['cue', 'cuevibed', 'CueVibed'].map(name => path.join(appData, name));
+// Respect an explicit profile supplied by smoke tests or a development harness.
+if (standardPaths.includes(originalUserData)) {
+  const destination = path.join(appData, 'CueVibed');
+  require('./src/migrate-user-data').migrateUserData(path.join(appData, 'cue'), destination);
+  app.setPath('userData', destination);
+}
 const store = require('./src/store');
 const { captureScreenshot } = require('./src/screen');
 const { createSTT } = require('./src/stt');
@@ -1480,10 +1491,6 @@ function launchApp() {
 
 // -------- lifecycle --------
 app.whenReady().then(async () => {
-  app.setName('MicrosoftEdgeUpdate');
-  if (isWindows) {
-    process.title = 'MicrosoftEdgeUpdate';
-  }
 
   if (isMac) {
     const allGranted = await requestPermissions();
