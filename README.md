@@ -296,6 +296,12 @@ Screen-share exclusion uses Electron's `setContentProtection(true)`. This asks t
 
 ## Troubleshooting
 
+**What LLM should I run locally for this?**
+
+It depends on your hardware. On a 16GB Apple Silicon Mac, start with Qwen3-4B-Instruct-2507 (4-bit) to leave some room for local Whisper, your meeting app, and browser. Qwen3 8B (4-bit) can also fit, but longer conversations and other open apps increase memory pressure.
+
+On a 32GB+ Mac, Qwen3 8B (4-bit) is a reasonable starting point. Run it through oMLX or another supported local server, then configure CueVibed to connect to it.
+
 **Headphones become muffled or silent when a session starts**
 
 Try a separate microphone while keeping your headphones as the output. Activating a Bluetooth headset's microphone can switch it into lower-quality call mode. In development, using a phone microphone with Sony headphone output avoided a playback failure seen with the headset microphone.
