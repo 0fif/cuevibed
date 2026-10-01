@@ -2,7 +2,7 @@
 
 # CueVibed
 
-**An open-source AI meeting copilot for macOS with live transcription and automatic answers.**
+**An open-source Cluely alternative for macOS with live transcription and automatic answers.**
 
 Run a local model or connect your own AI provider. Resize the overlay and adjust its text size and background opacity to suit your meeting.
 
@@ -20,6 +20,14 @@ CueVibed transcribes your microphone and meeting audio into separate channels. E
 CueVibed is a fork of [Cue](https://github.com/Blueturboguy07/cue) for **macOS with Apple Silicon**. It keeps Cue’s transcription, model integrations, screen-aware assistance, and meeting memory, and adds auto-answer, a resizable overlay, and separate Settings.
 
 You can run both transcription and answers on your Mac, or choose a hosted provider for either. Hosted providers may charge for usage. For local answers, you need a running model server; local transcription needs a downloaded speech model.
+
+## Looking for a Cluely or Pluely alternative?
+
+CueVibed is a free, open-source AI meeting assistant for Apple Silicon Macs. If you're looking for a Cluely replacement, a Pluely alternative, or a macOS-focused fork of Cue, it provides live transcription, suggested responses during calls, screen-aware assistance, and conversation recaps in a resizable desktop overlay.
+
+Use local Whisper for speech-to-text and a local model server such as oMLX or Ollama for answers, or connect your own supported cloud provider. The app does not require a CueVibed subscription; hosted AI providers may charge for usage. Running locally requires enough memory for your chosen models.
+
+CueVibed is an independent fork of Cue, not affiliated with Cluely or Pluely. It is an alternative for these meeting-assistant workflows, not a feature-for-feature replacement. See the setup instructions and limitations below before switching.
 
 ## A look inside
 
