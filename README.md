@@ -21,6 +21,20 @@ CueVibed is a fork of [Cue](https://github.com/Blueturboguy07/cue) for **macOS w
 
 You can run both transcription and answers on your Mac, or choose a hosted provider for either. Hosted providers may charge for usage. For local answers, you need a running model server; local transcription needs a downloaded speech model.
 
+## A look inside
+
+**Meeting view** — answers, quick actions, and transcript history alongside the conversation.
+
+<p align="center">
+  <img src="docs/meeting-view.png" width="900" alt="CueVibed meeting overlay showing a suggested answer, quick actions, and the open transcription history panel" />
+</p>
+
+**Settings** — a separate window for your models, audio, AI behavior, and appearance.
+
+<p align="center">
+  <img src="docs/settings.png" width="900" alt="CueVibed Settings showing sidebar navigation and Connection controls for the provider, server URL, and models" />
+</p>
+
 ## What this fork adds
 
 This table compares CueVibed with the Cue version it forked from. Upstream Cue may have changed since then.
